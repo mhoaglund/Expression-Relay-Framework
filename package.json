@@ -1,0 +1,30 @@
+{
+  "name": "expression-relay-framework",
+  "version": "0.1.0",
+  "description": "next-gen artist statement composition framework",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mhoaglund/Expression-Relay-Framework.git"
+  },
+  "keywords": [
+    "microliterature"
+  ],
+  "author": "Maxwell Hoaglund",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mhoaglund/Expression-Relay-Framework/issues"
+  },
+  "homepage": "https://github.com/mhoaglund/Expression-Relay-Framework#readme",
+  "dependencies": {
+    "is-json": "^2.0.0",
+    "nconf": "^0.8.4",
+    "pdfkit": "^0.8.0",
+    "request": "^2.74.0",
+    "trello": "^0.5.1",
+    "valid-url": "^1.0.9"
+  }
+}
