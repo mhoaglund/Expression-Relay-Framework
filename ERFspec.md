@@ -4,7 +4,7 @@ Next-Gen Artist Statement composition framework designed to produce artist state
 
 Functionally, the ERF spec specifies a method for creating a Trello board which will contain the content for an artist statement. Once this Trello board is constructed in a way that satisfies the spec, the board itself can be used as an artist statement or a distributable pdf document can be generated for free at mhoaglund.erfgen.com.
 
-To begin, create a Trello board and add Lists with the following names. It's important to match these exactly if you'd like to generate a pdf later using ERFgen.
+To begin, create a Trello board and add Lists with the following names. It's important to match these exactly if you'd like to generate a pdf later using ERFgen. Optional lists are marked with asterisks.
 
 * Color Code\*
 * Evaluative Impulses
@@ -14,9 +14,6 @@ To begin, create a Trello board and add Lists with the following names. It's imp
 * Point of View
 * Statements
 * Further Reading\*
-  
-  
-  *: Optional list
 
 ## Color Code
 This optional list is an opportunity for you to insert an arbitrary color-coding structure into your artist statement which can be used to create an extra layer of information. As an example, if within other lists I know I will be including items which may have more or less priority or power in describing my practice, I might create a color code to represent that. Red for high priority, Blue for marginal priority, etc. To add a coded color, add a card with a label color and a brief (100 words or fewer) written indication of the meaning of that color.
