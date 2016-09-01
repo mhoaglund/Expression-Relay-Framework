@@ -14,6 +14,8 @@ To begin, create a Trello board and add Lists with the following names. It's imp
 * Point of View
 * Statements
 * Further Reading\*
+  
+  
   *: Optional list
 
 ## Color Code
