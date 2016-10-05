@@ -133,10 +133,6 @@ http.createServer(function (req, res) {
     res.end('ok');
 }).listen(8124);
 
-function handleRequest(request, response){
-    response.end('It Works!! Path Hit: ' + request.url);
-}
-
 //If its one of our target names, remove it from the name array and return true.
 function ValidateName(name){
     var ion = listnames.indexOf(name);
@@ -184,34 +180,6 @@ function CleanColors(cards){
     function(err, cardresults){   
         allCards = cardresults;                                  
     });
-};
-
-function composePDF(json){
-    var id=json[0][0]['id'];
-    if(id){
-        //TODO make the pdf
-        trello.getListsOnBoard(id, function(error, lists){
-            if(!error){
-                async.filter(lists, function(list, callback){
-                    if(list.ValidateName == true){
-                        console.log('starting grab...');
-                        var cardsPromise = trello.getCardsOnList(list.listId);
-                        cardsPromise.then((cards) => {
-                            return callback(cards);
-                        })
-                        //get cards for lists and save in collections?
-                        
-                    }
-                }, function(fullResults){
-                    console.log(fullResults);
-                });
-                //loop over lists, validating
-                returnPDF(pdf);
-            }
-            
-        });
-    }
-    else returnError();
 };
 
 function returnError(){
