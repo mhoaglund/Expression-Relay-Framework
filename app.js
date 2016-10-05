@@ -69,8 +69,7 @@ function Execute(query){
     trello.getListsOnBoard(params.targetboard, function(error, lists){
             if(!error){
                 var allCards = [];
-                
-                //loop over lists, validating
+                var validationResult = [];
                 if(typeof lists == 'string') return; //sometimes trello's api will just chuck an error string back at you.
                 async.filter(lists, function(list, topcallback){
                     var validation;
@@ -82,11 +81,12 @@ function Execute(query){
                             if(!err){
                                 async.filter(data, function(card, bottomcallback){
                                     //TODO: attach metadata for lists
-                                    //TODO: card validation, load a validation object
+                                    //TODO: card validation
                                     var Card = new Object();
                                     var clr;
-                                    //TODO: this is a localization loose end here...
+                                    
                                     //maybe try if(params.isColorCoded && IsCCListName(list.name)){...}
+                                    //TODO: this is a localization loose end here...
                                     if(params.isColorCoded && list.name == "color code"){
                                         //store color codes in an array so we can check for valid application of the colors in the cards
                                         clr = null;
@@ -100,13 +100,16 @@ function Execute(query){
                                         if(card.labels.length > 0) clr = (card.labels[0].color) ? card.labels[0].color : 'none';
                                         Card.color = clr;
                                         Card.info = card.name;
-                                        coll.push(Card);
                                     }
                                     else{
                                         Card.color = 'none';
                                         Card.info = card.name;
-                                        coll.push(Card);
                                     }
+                                    //validationResult
+                                    var cvr = ValidateDataAgainst(validation, Card);
+                                    if(!cvr)coll.push(Card);
+                                    else validationResult.push(cvr);
+
                                     bottomcallback(null, card);
                                 }, function(err, cardresults){
                                     allCards.push(list.name);     
@@ -118,9 +121,12 @@ function Execute(query){
                     }
                 }, 
                 function(err, fullResults){
-                    console.log('done!'); 
+                    console.log('Card Result:'); 
                     if(params.isColorCoded) CleanColors(allCards);
                     console.log(allCards);
+                    console.log('Validation Result:');
+                    console.log(validationResult);
+                    //if we're clean of validation, we can go ahead with the PDF step here.
                 });
             }
         });
@@ -157,7 +163,29 @@ function LoadValidationSchema(listname){
 
 //TODO: pass in a validator object and use it to check.
 function ValidateDataAgainst(val_obj, entry){
-    
+    var result = null; //null is cleaned
+
+    if(val_obj.limittype){
+        var length = (val_obj.limittype == "word") ? entry.name.split(" ").length : entry.name.length;
+        if(val_obj.max){
+            if(length > val_obj.max){
+                var errmsg = nconf.get('spec:validation:messages:toolong');
+                result += errmsg;
+            }
+        }
+    }
+
+    if(val_obj.mustcontain){
+        //what kind of nasty regex stuff can do this?
+        if(val_obj.mustcontain == 'question'){
+            if(entry.name.indexOf('?') > -1){//potential localization weakness here.
+                var errmsg = nconf.get('spec:validation:messages:missing') + val_obj.mustcontain;
+                result += errmsg;
+            }
+        }
+    }
+
+    return result;
 };
 
 //Just check the name of a list against the current name of the CC list. Mainly for localization.
@@ -189,4 +217,15 @@ function returnError(){
 
 function returnPDF(doc){
     context.succeed(doc);
+};
+
+Array.prototype.move = function (old_index, new_index) {
+    if (new_index >= this.length) {
+        var k = new_index - this.length;
+        while ((k--) + 1) {
+            this.push(undefined);
+        }
+    }
+    this.splice(new_index, 0, this.splice(old_index, 1)[0]);
+    return this; // for testing purposes
 };

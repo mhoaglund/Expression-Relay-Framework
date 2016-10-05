@@ -25,6 +25,10 @@
                 "limittype":"word",
                 "max":100,
                 "min":0
+            },
+            "messages":{
+                "toolong":"One of these cards has text that is too long. The limit for cards in this list is ",
+                "missing":"One of these cards is missing an essential ingredient: a "
             }
         }
     }
