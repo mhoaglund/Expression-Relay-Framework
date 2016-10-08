@@ -69,7 +69,7 @@ function Execute(query){
     //TODO: track an error string through this to intelligently help users who didnt quite nail the spec
     trello.getListsOnBoard(params.targetboard, function(error, lists){
             if(!error){
-                var allCards = [];
+                var All = [];
                 var validationResult = [];
                 if(typeof lists == 'string') return; //sometimes trello's api will just chuck an error string back at you.
                 async.filter(lists, function(list, topcallback){
@@ -82,13 +82,12 @@ function Execute(query){
                             if(!err){
                                 async.filter(data, function(card, bottomcallback){
                                     //TODO: attach metadata for lists
-                                    //TODO: card validation
                                     var Card = new Object();
                                     var clr;
                                     
                                     //maybe try if(params.isColorCoded && IsCCListName(list.name)){...}
                                     //TODO: this is a localization loose end here...
-                                    if(params.isColorCoded && list.name == "color code"){
+                                    if(params.isColorCoded && list.name.toLowerCase() == "color code"){
                                         //store color codes in an array so we can check for valid application of the colors in the cards
                                         clr = null;
                                         if(card.labels.length > 0) clr = (card.labels[0].color) ? card.labels[0].color : 'none';
@@ -114,8 +113,10 @@ function Execute(query){
 
                                     bottomcallback(null, card);
                                 }, function(err, cardresults){
-                                    allCards.push(list.name);     
-                                    allCards.push(coll);                                    
+                                    var ThisList = new Object();
+                                    ThisList.cards = coll;
+                                    ThisList.name = list.name;
+                                    All.push(ThisList);                                     
                                     topcallback(null, coll);
                                 });
                             }
@@ -124,12 +125,20 @@ function Execute(query){
                 }, 
                 function(err, fullResults){
                     console.log('Card Result:'); 
-                    if(params.isColorCoded) CleanColors(allCards);
-                    console.log(allCards);
-                    console.log('Validation Result:');
-                    console.log(validationResult);
-                    CreatePDF(allCards);
-                    //if we're clean of validation, we can go ahead with the PDF step here.
+                     if(params.isColorCoded){
+                         CleanColors(All, function(err, data){
+                            console.log(data);
+                            console.log('Validation Result:');
+                            console.log(validationResult);
+                            CreatePDF(data);
+                         });
+                    }
+                    else{
+                        console.log(All);
+                        console.log('Validation Result:');
+                        console.log(validationResult);
+                        CreatePDF(All);
+                    }
                 });
             }
         });
@@ -195,20 +204,24 @@ function IsCCListName(name){
 
 };
 
-//TODO: loop over the cards we got, and with the color list in hand
-//TODO: double up this nesting. currently just looping over lists of cards, need the cards themselves.
-function CleanColors(cards){
+function CleanColors(lists, cb){
     var cleaned;
-    async.filter(cards, function(card, callback){
-        if(card.hasOwnProperty('color')){
-            if(validColors.indexOf(card.color) == -1){
-                //Color not shown in color code list, can't allow it
-                card.color = 'none';
+    async.filter(lists, function(list, callback){
+        list.cards.forEach(function(card){
+            if(card.hasOwnProperty('color')){
+                if(card.color && validColors.indexOf(card.color) == -1){
+                    //Color not null and not shown in color code list, can't allow it
+                    console.log('Removed color: '+ card.color);
+                    card.color = 'none';
+                }
             }
-        }
+        }); 
+        callback(null, list);
     },
     function(err, cardresults){   
-        allCards = cardresults;                                  
+        if(!err){
+            return cb(err, cardresults); 
+        }                       
     });
 };
 
@@ -216,10 +229,12 @@ function CreatePDF(data){
     doc = new pdfdoc;
     doc.pipe(fs.createWriteStream('result.pdf'));
     lorem = JSON.stringify(data);
+    other = "test string";
     doc.fillColor('green').text(lorem.slice(0, 500), {
         width: 465,
         continued: true
     }).fillColor('red').text(lorem.slice(500));
+    doc.rect(doc.x, 0, 465, doc.y).stroke('black');
     doc.end();
 }
 

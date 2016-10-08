@@ -1,6 +1,7 @@
 {
     "spec":{
-        "listnames":["tags","questions","evaluative impulses","connected concepts","point of view","statements","further reading", "color code"],
+        "_comment":"Listnames is responsible for determining default order of lists as shown in final doc.",
+        "listnames":["color code", "tags","questions","evaluative impulses","connected concepts","point of view","statements","further reading"],
         "validation":{
             "tags":{
                 "limittype":"char",
