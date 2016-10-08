@@ -144,6 +144,7 @@ function Execute(query){
         });
 };
 
+//this server has no future. This will be refactored for AWS lambda context duty.
 http.createServer(function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/html'});
     //console.log(req);
@@ -151,7 +152,7 @@ http.createServer(function (req, res) {
     res.end('ok');
 }).listen(8124);
 
-//If its one of our target names, remove it from the name array and return true.
+//If the list name is one of our target names, remove it from the name array and return true.
 function ValidateName(name){
     var ion = listnames.indexOf(name);
     if(ion > -1){
@@ -162,6 +163,7 @@ function ValidateName(name){
 };
 
 //TODO: look at the erfspec validation component. we need to be able to intelligently hydrate those properties for use with single lists.
+//from an academic/elegance POV I am not super into the way this method is impd, but I dont know what would be satisfying.
 function LoadValidationSchema(listname){
     var loc = 'spec:validation:' + listname.toLowerCase();
     var raw = nconf.get(loc);
@@ -173,9 +175,8 @@ function LoadValidationSchema(listname){
     return validator;
 };
 
-//TODO: pass in a validator object and use it to check.
 function ValidateDataAgainst(val_obj, entry){
-    var result = null; //null is cleaned
+    var result = null; //null is clean
     if(val_obj.limittype){
         var length = (val_obj.limittype == "word") ? entry.name.split(" ").length : entry.name.length;
         if(val_obj.max){
@@ -187,15 +188,17 @@ function ValidateDataAgainst(val_obj, entry){
     }
 
     if(val_obj.mustcontain){
-        //what kind of nasty regex stuff can do this?
+        //what kind of nasty regex/NLP stuff can do this the right way? a question is more than its mark.
         if(val_obj.mustcontain == 'question'){
-            if(entry.name.indexOf('?') > -1){//potential localization weakness here.
+            if(entry.name.indexOf('?') > -1){//potential localization weakness with this qmark.
                 var errmsg = nconf.get('spec:validation:messages:missing') + val_obj.mustcontain;
                 result += errmsg;
             }
         }
+        if(val_obj.mustcontain == 'hyperlink'){
+            //TODO sort out hyperlink detection here, try to quickly/sipmply validate that links are intact.
+        }
     }
-
     return result;
 };
 

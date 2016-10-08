@@ -1,6 +1,6 @@
 {
     "spec":{
-        "_comment":"Listnames is responsible for determining default order of lists as shown in final doc.",
+        "_comment":"Listnames is responsible for determining default order of lists as shown in final doc. Assuming that primary developers are using english lanugage.",
         "listnames":["color code", "tags","questions","evaluative impulses","connected concepts","point of view","statements","further reading"],
         "validation":{
             "tags":{
