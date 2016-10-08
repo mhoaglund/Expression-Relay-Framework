@@ -226,9 +226,22 @@ function CleanColors(lists, cb){
     });
 };
 
+//The order of lists as they are finally shown can be controlled by advanced users or can follow a default from the spec.
+function ResolveListOrder(listorder, lists, cb){
+    var ol = [];
+    if(listorder){
+        //...
+    }
+    else{
+        ol = lists; //just a passthru for now since this is pretty low priority stuff
+        return cb(ol);
+    }
+};
+
 function CreatePDF(data){
     doc = new pdfdoc;
     doc.pipe(fs.createWriteStream('result.pdf'));
+    //TODO loop over the lists and carefully render each card.
     lorem = JSON.stringify(data);
     other = "test string";
     doc.fillColor('green').text(lorem.slice(0, 500), {
