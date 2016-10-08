@@ -2,10 +2,11 @@ var request = require('request');
 var isJSON = require('is-json');
 var vurl = require('valid-url');
 var Trello = require('trello');
-var pdfkit = require('pdfkit');
+var pdfdoc = require('pdfkit');
 var nconf = require('nconf');
 var async = require('async');
 var http = require('http');
+var fs = require('fs');
 var querystring = require('querystring');
 
 //nconf.file({file:'https://s3.amazonaws.com/erf-materials/trelloconfig.json'});
@@ -105,8 +106,9 @@ function Execute(query){
                                         Card.color = 'none';
                                         Card.info = card.name;
                                     }
-                                    //validationResult
-                                    var cvr = ValidateDataAgainst(validation, Card);
+
+                                    //var cvr = ValidateDataAgainst(validation, Card);
+                                    var cvr = ValidateDataAgainst('', Card);
                                     if(!cvr)coll.push(Card);
                                     else validationResult.push(cvr);
 
@@ -126,6 +128,7 @@ function Execute(query){
                     console.log(allCards);
                     console.log('Validation Result:');
                     console.log(validationResult);
+                    CreatePDF(allCards);
                     //if we're clean of validation, we can go ahead with the PDF step here.
                 });
             }
@@ -164,7 +167,6 @@ function LoadValidationSchema(listname){
 //TODO: pass in a validator object and use it to check.
 function ValidateDataAgainst(val_obj, entry){
     var result = null; //null is cleaned
-
     if(val_obj.limittype){
         var length = (val_obj.limittype == "word") ? entry.name.split(" ").length : entry.name.length;
         if(val_obj.max){
@@ -209,6 +211,17 @@ function CleanColors(cards){
         allCards = cardresults;                                  
     });
 };
+
+function CreatePDF(data){
+    doc = new pdfdoc;
+    doc.pipe(fs.createWriteStream('result.pdf'));
+    lorem = JSON.stringify(data);
+    doc.fillColor('green').text(lorem.slice(0, 500), {
+        width: 465,
+        continued: true
+    }).fillColor('red').text(lorem.slice(500));
+    doc.end();
+}
 
 function returnError(){
     var output = "The ERF service is currently down. Please try again later."
