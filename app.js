@@ -126,8 +126,8 @@ function Execute(query){
                 function(err, fullResults){
                     console.log('Card Result:'); 
                      if(params.isColorCoded){
-                         CleanColors(All, function(err, data){
-                            console.log(data);
+                         CleanColors(All, function(err, data, colorvalidation){
+                            if(colorvalidation) validationResult += colorvalidation.toString();
                             console.log('Validation Result:');
                             console.log(validationResult);
                             CreatePDF(data);
@@ -204,14 +204,15 @@ function IsCCListName(name){
 
 };
 
+//Doublecheck use of colors on cards. The spec allows for color coding but only when used declaratively.
 function CleanColors(lists, cb){
-    var cleaned;
+    var validationstring = '';
     async.filter(lists, function(list, callback){
         list.cards.forEach(function(card){
             if(card.hasOwnProperty('color')){
                 if(card.color && validColors.indexOf(card.color) == -1){
                     //Color not null and not shown in color code list, can't allow it
-                    console.log('Removed color: '+ card.color);
+                    validationstring += ('Removed color: '+ card.color + ' from card "' + card.info + '" ');
                     card.color = 'none';
                 }
             }
@@ -220,7 +221,7 @@ function CleanColors(lists, cb){
     },
     function(err, cardresults){   
         if(!err){
-            return cb(err, cardresults); 
+            return cb(err, cardresults, validationstring); 
         }                       
     });
 };
