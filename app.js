@@ -259,10 +259,9 @@ function CreatePDF(data){
                 cardcolor = card.color;
             }
             doc.fillColor(cardcolor.toString()).text(card.info.toString(), {
-                continued: true,
                 align: 'left'
             });
-            doc.moveDown();
+            doc.moveDown();//using the rich text capability of pdfkit wrecks our ability to cleanly break lines.
         }); 
         callback(null, list);
     }, function(err, res){
