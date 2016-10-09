@@ -246,13 +246,24 @@ function CreatePDF(data){
     doc.pipe(fs.createWriteStream('result.pdf'));
     //TODO loop over the lists and carefully render each card.
     lorem = JSON.stringify(data);
-    other = "test string";
-    doc.fillColor('green').text(lorem.slice(0, 500), {
-        width: 465,
-        continued: true
-    }).fillColor('red').text(lorem.slice(500));
-    doc.rect(doc.x, 0, 465, doc.y).stroke('black');
-    doc.end();
+    async.filter(data, function(list,callback){
+        //Print card into doc. This currently doesn't happen in the right order- nest another async filter.
+        //Need to order lists anyway!
+        list.cards.forEach(function(card){
+            var cardcolor = 'black';
+            if(card.hasOwnProperty('color') && card.color){
+                cardcolor = card.color;
+            }
+            doc.fillColor(cardcolor.toString()).text(card.info.toString(), {
+                continued: true,
+                align: 'left'
+            });
+            doc.moveDown();
+        }); 
+        callback(null, list);
+    }, function(err, res){
+        doc.end();
+    });
 }
 
 function returnError(){
