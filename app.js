@@ -7,6 +7,7 @@ var nconf = require('nconf');
 var async = require('async');
 var http = require('http');
 var fs = require('fs');
+var lodash = require('lodash');
 var querystring = require('querystring');
 
 //nconf.file({file:'https://s3.amazonaws.com/erf-materials/trelloconfig.json'});
@@ -125,20 +126,13 @@ function Execute(query){
                 }, 
                 function(err, fullResults){
                     console.log('Card Result:'); 
-                     if(params.isColorCoded){
-                         CleanColors(All, function(err, data, colorvalidation){
-                            if(colorvalidation) validationResult += colorvalidation.toString();
-                            console.log('Validation Result:');
-                            console.log(validationResult);
-                            CreatePDF(data);
-                         });
-                    }
-                    else{
-                        console.log(All);
-                        console.log('Validation Result:');
+                        CleanColors(All, function(err, data, colorvalidation){
+                        if(colorvalidation) validationResult += colorvalidation.toString();
                         console.log(validationResult);
-                        CreatePDF(All);
-                    }
+                        ResolveListOrder(listnames, data, function(err, ordereddata){
+                            CreatePDF(ordereddata);
+                        });
+                    });
                 });
             }
         });
@@ -233,7 +227,17 @@ function CleanColors(lists, cb){
 function ResolveListOrder(listorder, lists, cb){
     var ol = [];
     if(listorder){
-        //...
+        //loop over list names in order, potentially pushing a list from All to the ordered list
+        async.eachSeries(listorder, function(listname, callback){
+            var found = lodash.find(lists, x => x.name.toLowerCase() == listname);
+            if(found && lists.indexOf(found) != -1){
+                console.log('Added ' + found.name + ' in order');
+                ol.push(found);
+            }
+            callback(null, null);
+        }, function(err, results){
+            return cb(null, ol);
+        });
     }
     else{
         ol = lists; //just a passthru for now since this is pretty low priority stuff
