@@ -17,6 +17,11 @@ nconf.file('tokens', 'trelloconfig.json');
 var trello = new Trello(nconf.get('trello:key'),nconf.get('trello:token'));
 var listnames = [];
 var validColors = [];
+
+var defaultfn = 'result';
+var defaultappend = '_1';
+var awsloc = "";
+//var awsloc = 'https://s3.amazonaws.com/erf-materials/';
 //var speclistname = nconf.get('')
 
 //Example URL:  https://trello.com/b/yeaRDUaD/work-description
@@ -53,8 +58,7 @@ function Execute(query){
     }
 
     //Can localize using alternate language specs
-    var awsloc = "";
-    //var awsloc = 'https://s3.amazonaws.com/erf-materials/';
+
     var specname = "";
     
     if(params.lang){
@@ -130,7 +134,7 @@ function Execute(query){
                         if(colorvalidation) validationResult += colorvalidation.toString();
                         console.log(validationResult);
                         ResolveListOrder(listnames, data, function(err, ordereddata){
-                            CreatePDF(ordereddata);
+                            CreatePDF(ordereddata, defaultfn);
                         });
                     });
                 });
@@ -240,19 +244,19 @@ function ResolveListOrder(listorder, lists, cb){
         });
     }
     else{
-        ol = lists; //just a passthru for now since this is pretty low priority stuff
+        ol = lists;
         return cb(ol);
     }
 };
 
-function CreatePDF(data){
+//TODO font capability. do users need to post a font file? Use Noto (good localization profile for the future) from aws bucket by default
+function CreatePDF(data, filename){
     doc = new pdfdoc;
-    doc.pipe(fs.createWriteStream('result.pdf'));
-    //TODO loop over the lists and carefully render each card.
+    doc.fontSize(8);
+    doc.font(awsloc + 'fonts/NotoSans-Regular.ttf');
+    doc.pipe(fs.createWriteStream(filename + '.pdf'));
     lorem = JSON.stringify(data);
     async.filter(data, function(list,callback){
-        //Print card into doc. This currently doesn't happen in the right order- nest another async filter.
-        //Need to order lists anyway!
         list.cards.forEach(function(card){
             var cardcolor = 'black';
             if(card.hasOwnProperty('color') && card.color){
@@ -261,7 +265,6 @@ function CreatePDF(data){
             doc.fillColor(cardcolor.toString()).text(card.info.toString(), {
                 align: 'left'
             });
-            doc.moveDown();//using the rich text capability of pdfkit wrecks our ability to cleanly break lines.
         }); 
         callback(null, list);
     }, function(err, res){
