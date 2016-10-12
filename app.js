@@ -32,7 +32,9 @@ var awsloc = "";
     // event.targetboard
     // event.colorcoded
     // event.lang
+    // event.customorder
     // etc...
+    
     // Users can send a board id or a full url, so...
 //    Execute(event);
 //};
