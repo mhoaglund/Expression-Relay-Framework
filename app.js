@@ -134,7 +134,7 @@ function Execute(query){
                         console.log(validationResult);
                         ResolveListOrder(listnames, data, function(err, ordereddata){
                             if(validationResult.length ==0) {
-                                CreatePDF(ordereddata, defaultfilename);
+                                CreatePDF(ordereddata, defaultfilename, params.customfont); //couldnt the font be an object? maybe we need a middle step here
                             }
                             else{
                                 SendValidationReport(validationResult);
@@ -249,10 +249,16 @@ function ResolveListOrder(listorder, lists, cb){
 };
 
 //TODO font capability. do users need to post a font file? Use Noto (good localization profile for the future) from aws bucket by default
-function CreatePDF(data, filename){
+function CreatePDF(data, filename, cfont){
     doc = new pdfdoc;
     doc.fontSize(8);
-    doc.font(awsloc + 'fonts/NotoSans-Regular.ttf');
+    if(cfont == '' | !cfont){
+        doc.font(awsloc + 'fonts/NotoSans-Regular.ttf');
+    }
+    else{
+        doc.font(awsloc + 'fonts/' + cfont);
+    }
+    
     doc.pipe(fs.createWriteStream(filename + '.pdf'));
     lorem = JSON.stringify(data);
     async.filter(data, function(list,callback){
