@@ -3,6 +3,7 @@ var isJSON = require('is-json');
 var vurl = require('valid-url');
 var Trello = require('trello');
 var pdfdoc = require('pdfkit');
+var pdfmake = require('pdfmake'); //this might be better. We can go json-to-json and just pop one of these out. it also has tables.
 var nconf = require('nconf');
 var async = require('async');
 var http = require('http');
