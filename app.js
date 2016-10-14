@@ -131,11 +131,12 @@ function Execute(query){
                 function(err, fullResults){
                     console.log('Card Result:'); 
                         CleanColors(All, function(err, data, colorvalidation){
-                        if(colorvalidation) validationResult += colorvalidation.toString();
+                        //if(colorvalidation) validationResult += colorvalidation.toString();
                         console.log(validationResult);
                         ResolveListOrder(listnames, data, function(err, ordereddata){
                             if(validationResult.length ==0) {
-                                CreatePDF(ordereddata, defaultfilename, params.customfont); //couldnt the font be an object? maybe we need a middle step here
+                                //CreatePDF(ordereddata, defaultfilename, params.customfont); //couldnt the font be an object? maybe we need a middle step here
+                                MakePDF(ordereddata, defaultfilename, params.customfont); //MakePDF results in larger files, so maybe hang onto the base pdfkit impo for now
                             }
                             else{
                                 SendValidationReport(validationResult);
@@ -205,6 +206,10 @@ function ValidateDataAgainst(val_obj, entry){
     return result;
 };
 
+function SendValidationReport(report){
+
+}
+
 //Doublecheck use of colors on cards. The spec allows for color coding but only when used declaratively.
 function CleanColors(lists, cb){
     var validationstring = '';
@@ -261,7 +266,6 @@ function CreatePDF(data, filename, cfont){
     }
     
     doc.pipe(fs.createWriteStream(filename + '.pdf'));
-    lorem = JSON.stringify(data);
     async.filter(data, function(list,callback){
         list.cards.forEach(function(card){
             var cardcolor = 'black';
@@ -278,8 +282,46 @@ function CreatePDF(data, filename, cfont){
     });
 }
 
-function returnError(){
-    var output = "The ERF service is currently down. Please try again later."
+//TODO: figure out piping to blob
+function MakePDF(data, filename, cfont){
+    var fonts = {
+        Roboto: {
+            normal: 'fonts/NotoMono-Regular.ttf',
+            bold: 'fonts/NotoMono-Regular.ttf',
+            italics: 'fonts/NotoMono-Regular.ttf',
+            bolditalics: 'fonts/NotoMono-Regular.ttf'
+        }
+    };
+    var PdfPrinter = require('pdfmake/src/printer');
+    var printer = new PdfPrinter(fonts);
+    var docdef = {content:[], styles:{
+        _default:{
+            fontSize: 8,
+            alignment: 'left'
+        }
+    }};
+    async.filter(data, function(list,callback){
+        list.cards.forEach(function(card){
+            var cardcolor = 'black';
+            if(card.hasOwnProperty('color') && card.color){
+                cardcolor = card.color;
+            }
+            var paragraph = { text: card.info.toString(), color: cardcolor, style: '_default'};
+            docdef.content.push(paragraph);
+        }); 
+        callback(null, list);
+    }, function(err, res){
+        var pdfDoc = printer.createPdfKitDocument(docdef);
+        pdfDoc.pipe(fs.createWriteStream('makepdfexample.pdf'));
+        pdfDoc.end();
+    });
+}
+
+function returnError(report){
+    if(!report){
+        var output = "The ERF service is currently down. Please try again later."
+    }
+
     context.succeed(output);
 };
 
