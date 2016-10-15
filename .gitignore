@@ -11,6 +11,7 @@ npm-debug.log*
 trelloconfig.json*
 
 # Ignore app Output
+makepdfexample.pdf*
 result.pdf*
 
 # Runtime data

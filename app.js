@@ -282,14 +282,13 @@ function CreatePDF(data, filename, cfont){
     });
 }
 
-//TODO: figure out piping to blob
 function MakePDF(data, filename, cfont){
     var fonts = {
         Roboto: {
-            normal: 'fonts/NotoMono-Regular.ttf',
-            bold: 'fonts/NotoMono-Regular.ttf',
-            italics: 'fonts/NotoMono-Regular.ttf',
-            bolditalics: 'fonts/NotoMono-Regular.ttf'
+            normal: 'fonts/NotoSans-Regular.ttf',
+            bold: 'fonts/NotoSans-Bold.ttf',
+            italics: 'fonts/NotoSans-Italic.ttf',
+            bolditalics: 'fonts/NotoSans-BoldItalic.ttf'
         }
     };
     var PdfPrinter = require('pdfmake/src/printer');
@@ -301,14 +300,34 @@ function MakePDF(data, filename, cfont){
         }
     }};
     async.filter(data, function(list,callback){
-        list.cards.forEach(function(card){
-            var cardcolor = 'black';
-            if(card.hasOwnProperty('color') && card.color){
-                cardcolor = card.color;
-            }
-            var paragraph = { text: card.info.toString(), color: cardcolor, style: '_default'};
-            docdef.content.push(paragraph);
-        }); 
+        //TODO table for color code, etc.
+        if(list.name.toLowerCase() == listnames[0]){
+            //use a table for the color code
+            var tableobj = {table:{headerRows: 0, widths:[], body:[]}};
+            var colorrow = [];
+            list.cards.forEach(function(card){
+                var cardcolor = 'black';
+                if(card.hasOwnProperty('color') && card.color){
+                    cardcolor = card.color;
+                }
+                var paragraph = { text: card.info.toString(), color: cardcolor, style: '_default'};
+                tableobj.table.widths.push('*');
+                colorrow.push(paragraph);
+            }); 
+            tableobj.table.body.push(colorrow);
+            docdef.content.push(tableobj);
+        }
+        else{
+            list.cards.forEach(function(card){
+                var cardcolor = 'black';
+                if(card.hasOwnProperty('color') && card.color){
+                    cardcolor = card.color;
+                }
+                var paragraph = { text: card.info.toString(), color: cardcolor, style: '_default'};
+                docdef.content.push(paragraph);
+            }); 
+        }
+        
         callback(null, list);
     }, function(err, res){
         var pdfDoc = printer.createPdfKitDocument(docdef);
@@ -317,25 +336,14 @@ function MakePDF(data, filename, cfont){
     });
 }
 
+//Lambda-specific. This is pretty old here.
 function returnError(report){
     if(!report){
         var output = "The ERF service is currently down. Please try again later."
     }
-
     context.succeed(output);
 };
 
 function returnPDF(doc){
     context.succeed(doc);
-};
-
-Array.prototype.move = function (old_index, new_index) {
-    if (new_index >= this.length) {
-        var k = new_index - this.length;
-        while ((k--) + 1) {
-            this.push(undefined);
-        }
-    }
-    this.splice(new_index, 0, this.splice(old_index, 1)[0]);
-    return this; // for testing purposes
 };
