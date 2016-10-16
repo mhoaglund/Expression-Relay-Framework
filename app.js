@@ -3,7 +3,7 @@ var isJSON = require('is-json');
 var vurl = require('valid-url');
 var Trello = require('trello');
 var pdfdoc = require('pdfkit');
-var pdfmake = require('pdfmake'); //this might be better. We can go json-to-json and just pop one of these out. it also has tables.
+var pdfmake = require('pdfmake'); //better formatting support, but larger file size.
 var nconf = require('nconf');
 var async = require('async');
 var http = require('http');
@@ -11,15 +11,14 @@ var fs = require('fs');
 var lodash = require('lodash');
 var querystring = require('querystring');
 
-//nconf.file({file:'https://s3.amazonaws.com/erf-materials/trelloconfig.json'});
-nconf.file('tokens', 'trelloconfig.json');
+nconf.file('tokens', awsloc + 'trelloconfig.json');
 //nconf.file('spec', 'en_erfspec.json')
 
 var trello = new Trello(nconf.get('trello:key'),nconf.get('trello:token'));
 var listnames = [];
 var validColors = [];
 
-var defaultfilename = 'result';
+var defaultfilename = 'statement';
 var defaultappend = '_1';
 var awsloc = "";
 //var awsloc = 'https://s3.amazonaws.com/erf-materials/';
@@ -33,13 +32,13 @@ var awsloc = "";
     // event.colorcoded
     // event.lang
     // event.customorder
+    // event.ccodestyle
+    // event.gutter
     // etc...
-    
-    // Users can send a board id or a full url, so...
 //};
 
 //TEST URL
-//http://localhost:8124/&targetboard=yeaRDUaD&isColorCoded=1&lang=en
+//http://localhost:8124/&targetboard=yeaRDUaD&isColorCoded=1&lang=en&ccodestyle=1&gutter=10
 
 function Execute(query){
     var boarduri = '';
@@ -68,7 +67,7 @@ function Execute(query){
     else{
         specname = 'en_erfspec.json';
     }
-    //nconf.file({file:'https://s3.amazonaws.com/erf-materials/trelloconfig.json'});
+
     nconf.file('spec', awsloc + specname);
     listnames = nconf.get('spec:listnames');
     //Some cause for concern here. We could go barreling past this before the config file comes back.
@@ -136,7 +135,7 @@ function Execute(query){
                         ResolveListOrder(listnames, data, function(err, ordereddata){
                             if(validationResult.length ==0) {
                                 //CreatePDF(ordereddata, defaultfilename, params.customfont); //couldnt the font be an object? maybe we need a middle step here
-                                MakePDF(ordereddata, defaultfilename, params.customfont); //MakePDF results in larger files, so maybe hang onto the base pdfkit impo for now
+                                MakePDF(ordereddata, defaultfilename, params); //MakePDF results in larger files, so maybe hang onto the base pdfkit impo for now
                             }
                             else{
                                 SendValidationReport(validationResult);
@@ -282,7 +281,7 @@ function CreatePDF(data, filename, cfont){
     });
 }
 
-function MakePDF(data, filename, cfont){
+function MakePDF(data, filename, params){
     var fonts = {
         Roboto: {
             normal: 'fonts/NotoSans-Regular.ttf',
@@ -297,25 +296,59 @@ function MakePDF(data, filename, cfont){
         _default:{
             fontSize: 8,
             alignment: 'left'
+        },
+        table: {
+
+		},
+        vmargin:{
+            margin: [0, 0, 0, 20],
+            columnGap: parseInt(params.gutter)
         }
     }};
     async.filter(data, function(list,callback){
-        //TODO table for color code, etc.
         if(list.name.toLowerCase() == listnames[0]){
             //use a table for the color code
-            var tableobj = {table:{headerRows: 0, widths:[], body:[]}};
-            var colorrow = [];
-            list.cards.forEach(function(card){
-                var cardcolor = 'black';
-                if(card.hasOwnProperty('color') && card.color){
-                    cardcolor = card.color;
-                }
-                var paragraph = { text: card.info.toString(), color: cardcolor, style: '_default'};
-                tableobj.table.widths.push('*');
-                colorrow.push(paragraph);
-            }); 
-            tableobj.table.body.push(colorrow);
-            docdef.content.push(tableobj);
+            if(params.ccodestyle === "1"){ 
+                //TODO here, we're forking into two possible paths just to generate structure of a json object differently.
+                //we should just generate and then rearrange depending on ccodestyle.
+
+                var columnhost = {style: 'vmargin',columns:[]};
+                list.cards.forEach(function(card){
+                    var tableobj = {width: 'auto', table:{style: 'table', headerRows: 0, widths:[], body:[]}};
+                    var colorrow = [];
+                    var cardcolor = 'black';
+                    if(card.hasOwnProperty('color') && card.color){
+                        cardcolor = card.color;
+                    }
+                    var paragraph = { text: card.info.toString(), color: cardcolor, style: '_default'};
+                    tableobj.table.widths.push('auto');
+                    colorrow.push(paragraph);
+                    tableobj.table.body.push(colorrow);
+                    tableobj.layout = {
+                        hLineColor: cardcolor,
+                        vLineColor: cardcolor,
+                        hLineWidth: function(){return 1;}, //TODO update pdfmake so we can just pass a value in here.
+                        vLineWidth: function(){return 1;}  //TODO fix pdfmake's offset math when using o.5 for both widths.
+                    };
+                    columnhost.columns.push(tableobj);
+                }); 
+                docdef.content.push(columnhost);
+            }
+            else{
+                var tableobj = {table:{headerRows: 0, widths:[], body:[]}};
+                var colorrow = [];
+                list.cards.forEach(function(card){
+                    var cardcolor = 'black';
+                    if(card.hasOwnProperty('color') && card.color){
+                        cardcolor = card.color;
+                    }
+                    var paragraph = { text: card.info.toString(), color: cardcolor, style: '_default'};
+                    tableobj.table.widths.push('*');
+                    colorrow.push(paragraph);
+                }); 
+                tableobj.table.body.push(colorrow);
+                docdef.content.push(tableobj);
+            }
         }
         else{
             list.cards.forEach(function(card){
