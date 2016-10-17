@@ -23,6 +23,9 @@ var blueCorrection = '#0079BF';
 var redCorrection = '#EB5A46';
 var baseGray = '#545454'; //default gray so color text doesn't recede
 
+var vnum = 'v0.1';
+var currdate = new Date().toJSON().slice(0,10).toString();
+
 var defaultfilename = 'statement';
 var defaultappend = '_1';
 var awsloc = "";
@@ -322,19 +325,25 @@ function MakePDF(data, filename, params){
             alignment: 'left',
             margin: [0, 8]
         },
+        _footer:{
+            fontSize: 6,
+            italics: true,
+            color: baseGray,
+            margin: [0, 8]
+        },
         table: {
 
 		},
         vmargin:{
-            margin: [0, 0, 0, 20],
+            margin: [0, 8],
             columnGap: parseInt(params.gutter)
         }
     }};
-    var meta = ['Maxwell','Hoaglund','Artist Statement'];
+    var meta = ['Maxwell Hoaglund','Artist Statement'];
     meta.forEach(function(line){
         docdef.content.push({ text: line, style: '_default'});
     });
-    
+    //TODO make this more sophisticated by loading display schema objects from a json doc for each list by name.
     async.filter(data, function(list,callback){
         var list_title = { text: list.name, style: '_subhead'}; //should users be able to color code a whole list?
         docdef.content.push(list_title);
@@ -404,9 +413,9 @@ function MakePDF(data, filename, params){
                 docdef.content.push(paragraph);
             }); 
         }
-        
         callback(null, list);
     }, function(err, res){
+        docdef.content.push({ text: 'Compiled with Expression Relay Framework ' + vnum + ' on ' + currdate, style: '_footer'});
         var pdfDoc = printer.createPdfKitDocument(docdef);
         pdfDoc.pipe(fs.createWriteStream('makepdfexample.pdf'));
         pdfDoc.end();
