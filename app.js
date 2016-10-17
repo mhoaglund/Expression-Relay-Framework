@@ -21,7 +21,7 @@ var validColors = [];
 var yellowCorrection = '#F2D600';
 var blueCorrection = '#0079BF';
 var redCorrection = '#EB5A46';
-var baseGray = '#545454';
+var baseGray = '#545454'; //default gray so color text doesn't recede
 
 var defaultfilename = 'statement';
 var defaultappend = '_1';
@@ -381,6 +381,18 @@ function MakePDF(data, filename, params){
                 tableobj.table.body.push(colorrow);
                 docdef.content.push(tableobj);
             }
+        }
+        else if(list.name.toLowerCase() == listnames[1]){ //Tags
+            var alltags = { text: [], style: '_default'};
+            list.cards.forEach(function(card){
+                var cardcolor = 'black';
+                if(card.hasOwnProperty('color') && card.color){
+                    cardcolor = card.color;
+                }
+                var paragraph = { text: card.info.toString() + ', ', color: cardcolor, style: '_default'};
+                alltags.text.push(paragraph);
+            }); 
+            docdef.content.push(alltags);
         }
         else{
             list.cards.forEach(function(card){
