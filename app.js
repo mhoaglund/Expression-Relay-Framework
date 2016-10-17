@@ -17,6 +17,11 @@ nconf.file('tokens', awsloc + 'trelloconfig.json');
 var trello = new Trello(nconf.get('trello:key'),nconf.get('trello:token'));
 var listnames = [];
 var validColors = [];
+//var yellowCorrection = '#e2d812';
+var yellowCorrection = '#F2D600';
+var blueCorrection = '#0079BF';
+var redCorrection = '#EB5A46';
+var baseGray = '#545454';
 
 var defaultfilename = 'statement';
 var defaultappend = '_1';
@@ -220,6 +225,21 @@ function CleanColors(lists, cb){
                     validationstring += ('Removed color: '+ card.color + ' from card "' + card.info + '" ');
                     card.color = 'none';
                 }
+                if(card.color == 'yellow'){
+                    card.color = yellowCorrection;
+                }
+                if(card.color == 'blue'){
+                    card.color = blueCorrection;
+                }
+                if(card.color == 'red'){
+                    card.color = redCorrection;
+                }
+                if(card.color == 'black' | card.color == null | card.color == 'none'){
+                    card.color = baseGray;
+                }
+            }
+            else{
+                card.color = baseGray;
             }
         }); 
         callback(null, list);
@@ -292,10 +312,15 @@ function MakePDF(data, filename, params){
     };
     var PdfPrinter = require('pdfmake/src/printer');
     var printer = new PdfPrinter(fonts);
-    var docdef = {content:[], styles:{
+    var docdef = {content:[], styles:{ //TODO load these styles from aws
         _default:{
             fontSize: 8,
             alignment: 'left'
+        },
+        _subhead:{
+            fontSize: 8,
+            alignment: 'left',
+            margin: [0, 8]
         },
         table: {
 
@@ -305,7 +330,14 @@ function MakePDF(data, filename, params){
             columnGap: parseInt(params.gutter)
         }
     }};
+    var meta = ['Maxwell','Hoaglund','Artist Statement'];
+    meta.forEach(function(line){
+        docdef.content.push({ text: line, style: '_default'});
+    });
+    
     async.filter(data, function(list,callback){
+        var list_title = { text: list.name, style: '_subhead'}; //should users be able to color code a whole list?
+        docdef.content.push(list_title);
         if(list.name.toLowerCase() == listnames[0]){
             //use a table for the color code
             if(params.ccodestyle === "1"){ 
@@ -316,7 +348,7 @@ function MakePDF(data, filename, params){
                 list.cards.forEach(function(card){
                     var tableobj = {width: 'auto', table:{style: 'table', headerRows: 0, widths:[], body:[]}};
                     var colorrow = [];
-                    var cardcolor = 'black';
+                    var cardcolor = baseGray;
                     if(card.hasOwnProperty('color') && card.color){
                         cardcolor = card.color;
                     }
@@ -327,7 +359,7 @@ function MakePDF(data, filename, params){
                     tableobj.layout = {
                         hLineColor: cardcolor,
                         vLineColor: cardcolor,
-                        hLineWidth: function(){return 1;}, //TODO update pdfmake so we can just pass a value in here.
+                        hLineWidth: function(){return 1;}, //TODO update pdfmake so we can just pass a value in here like we can with color.
                         vLineWidth: function(){return 1;}  //TODO fix pdfmake's offset math when using o.5 for both widths.
                     };
                     columnhost.columns.push(tableobj);
