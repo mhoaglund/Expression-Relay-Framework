@@ -90,6 +90,7 @@ function Execute(query){
             if(!error){
                 var Meta = [];
                 if(params.name){
+                    //TODO: smoke test this for special characters.
                     var cleanname = decodeURI(params.name);
                     Meta.push(cleanname);
                 }
