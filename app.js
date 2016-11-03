@@ -26,6 +26,10 @@ var baseGray = '#545454'; //default gray so color text doesn't recede
 var vnum = 'v0.1';
 var currdate = new Date().toJSON().slice(0,10).toString();
 
+var boardMeta = ['name']; //getBoardFieldbyName
+//Note: 'desc' field that comes back with most board JSONs is being phased out.
+//Maybe that means something in the spec for an intro paragraph, or is that sacrelige?
+
 var defaultfilename = 'statement';
 var defaultappend = '_1';
 var awsloc = "";
@@ -42,11 +46,12 @@ var awsloc = "";
     // event.customorder
     // event.ccodestyle
     // event.gutter
+    // event.name
     // etc...
 //};
 
 //TEST URL
-//http://localhost:8124/&targetboard=yeaRDUaD&isColorCoded=1&lang=en&ccodestyle=1&gutter=10
+//http://localhost:8124/&targetboard=yeaRDUaD&isColorCoded=1&lang=en&ccodestyle=1&gutter=10&name=Maxwell%20Hoaglund
 
 function Execute(query){
     var boarduri = '';
@@ -83,13 +88,30 @@ function Execute(query){
     //TODO: track an error string through this to intelligently help users who didnt quite nail the spec
     trello.getListsOnBoard(params.targetboard, function(error, lists){
             if(!error){
+                var Meta = [];
+                if(params.name){
+                    var cleanname = decodeURI(params.name);
+                    Meta.push(cleanname);
+                }
+                
                 var All = [];
                 var validationResult = [];
                 if(typeof lists == 'string') return; //sometimes trello's api will just chuck an error string back at you. Maybe that's my fault?
+                async.filter(boardMeta, function(field, callback){
+                    trello.getBoardFieldbyName(params.targetboard, field, function(err, data){
+                        if(!err){
+                            console.log('got' + data._value);
+                            Meta.push(data._value);  
+                        }
+                        else console.log(err);
+                    });
+                },function(err, results){
+                    //uhh
+                });
                 async.filter(lists, function(list, topcallback){
                     var validation;
                     if(ValidateName(list.name) == true){
-                        console.log('Grabbing cards from ' + list.name);  
+                        //console.log('Grabbing cards from ' + list.name);  
                         validation = LoadValidationSchema(list.name);
                         var coll = [];
                         trello.getCardsOnList(list.id, function(err, data){
@@ -143,7 +165,7 @@ function Execute(query){
                         ResolveListOrder(listnames, data, function(err, ordereddata){
                             if(validationResult.length ==0) {
                                 //CreatePDF(ordereddata, defaultfilename, params.customfont); //couldnt the font be an object? maybe we need a middle step here
-                                MakePDF(ordereddata, defaultfilename, params); //MakePDF results in larger files, so maybe hang onto the base pdfkit impo for now
+                                MakePDF(Meta, ordereddata, defaultfilename, params); //MakePDF results in larger files, so maybe hang onto the base pdfkit impo for now
                             }
                             else{
                                 SendValidationReport(validationResult);
@@ -276,7 +298,7 @@ function ResolveListOrder(listorder, lists, cb){
     }
 };
 
-//TODO font capability. do users need to post a font file? Use Noto (good localization profile for the future) from aws bucket by default
+//***Deprecated for now.
 function CreatePDF(data, filename, cfont){
     doc = new pdfdoc;
     doc.fontSize(8);
@@ -304,7 +326,7 @@ function CreatePDF(data, filename, cfont){
     });
 }
 
-function MakePDF(data, filename, params){
+function MakePDF(meta, data, filename, params){
     var fonts = {
         Roboto: {
             normal: 'fonts/NotoSans-Regular.ttf',
@@ -339,7 +361,7 @@ function MakePDF(data, filename, params){
             columnGap: parseInt(params.gutter)
         }
     }};
-    var meta = ['Maxwell Hoaglund','Artist Statement'];
+
     meta.forEach(function(line){
         docdef.content.push({ text: line, style: '_default'});
     });
@@ -352,7 +374,6 @@ function MakePDF(data, filename, params){
             if(params.ccodestyle === "1"){ 
                 //TODO here, we're forking into two possible paths just to generate structure of a json object differently.
                 //we should just generate and then rearrange depending on ccodestyle.
-
                 var columnhost = {style: 'vmargin',columns:[]};
                 list.cards.forEach(function(card){
                     var tableobj = {width: 'auto', table:{style: 'table', headerRows: 0, widths:[], body:[]}};
