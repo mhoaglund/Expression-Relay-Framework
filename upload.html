@@ -1,0 +1,61 @@
+<html>
+    <head>
+        <script
+            src="https://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+            crossorigin="anonymous">
+        </script>
+        <link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="site.min.css">
+        <link rel="stylesheet" href="vendor.min.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script type="text/javascript" src="load.js"></script>
+    </head>
+    <body>
+        <div class="center-main">
+            <div class="left cf title">
+                <p>ERF Hydrant</p>
+            </div>
+            <form id="upload" action="https://bfl2ntqq7j.execute-api.us-east-1.amazonaws.com/beta/erfmake" method="get">
+                <form id="rendered-form">
+                    <div class="fb-text form-group field-boardid">
+                        <label for="boardid" class="fb-text-label">Board ID <span class="required">*</span> <span class="tooltip-element" tooltip="Paste your Trello Board ID here.">?</span></label> 
+                        <input type="text" required="" class="form-control" name="boardid" id="boardid" aria-required="true">
+                    </div>
+                    <div class="fb-checkbox form-group field-ccode">
+                        <div class="kc-toggle">
+                            <input type="checkbox" toggle="true" class="checkbox" name="ccode" id="ccode">
+                                <div class="kct-inner">
+                                    <div class="kct-on">On</div>
+                                    <div class="kct-handle"></div>
+                                    <div class="kct-off">Off</div>
+                                </div>
+                        </div> 
+                        <label for="ccode" class="fb-checkbox-label">Is Board Color Coded?  </label>
+                    </div>
+                    <div class="fb-text form-group field-fname">
+                        <label for="fname" class="fb-text-label">Artist Name <span class="required">*</span> <span class="tooltip-element" tooltip="Enter your name here.">?</span></label> 
+                        <input type="text" required="" class="form-control" name="fname" id="fname" aria-required="true">
+                    </div>
+                    <div class="fb-radio form-group field-ccodegroup">
+                        <label for="ccodegroup" class="fb-radio-group-label">Color Code Style  </label>
+                        <div class="radio-group">
+                            <input value="solid" type="radio" class="ccodegroup" name="ccodegroup" id="ccodegroup-0"> 
+                            <label for="ccodegroup-0">Solid</label><br><input value="outline" type="radio" class="ccodegroup" name="ccodegroup" id="ccodegroup-1" checked=""> 
+                            <label for="ccodegroup-1">Outline</label><br>
+                        </div>
+                    </div>
+                    <div class="fb-text form-group field-gutter">
+                        <label for="gutter" class="fb-text-label">Column Gutter  </label> 
+                        <input type="text" class="form-control" name="gutter" value="10" id="gutter">
+                    </div>
+                    <div class="fb-submit form-group field-submiterf">
+                        <button type="submit" class="button-input btn btn-primary" name="submiterf" style="primary" id="submiterf">Submit</button>
+                    </div>
+                </form>
+            </form>
+        </div>
+    </body>
+</html>

@@ -38,7 +38,7 @@ var awsloc = "";
 //Example URL:  https://trello.com/b/yeaRDUaD/work-description
 //OR:           https://trello.com/b/yeaRDUaD
 //iterate over the board, building a pdf out of it, then replying with the pdf.
-//exports.handler = function(event, context){
+exports.handler = function(event, context){
     // hook up query params in API gateway
     // event.targetboard
     // event.colorcoded
@@ -48,10 +48,18 @@ var awsloc = "";
     // event.gutter
     // event.name
     // etc...
-//};
+};
 
 //TEST URL
 //http://localhost:8124/&targetboard=yeaRDUaD&isColorCoded=1&lang=en&ccodestyle=1&gutter=10&name=Maxwell%20Hoaglund
+
+//this server has no future. This will be refactored for AWS lambda context duty.
+http.createServer(function (req, res) {
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    //console.log(req);
+    Execute(req);
+    res.end('ok');
+}).listen(8124);
 
 function Execute(query){
     var boarduri = '';
@@ -178,14 +186,6 @@ function Execute(query){
         });
 };
 
-//this server has no future. This will be refactored for AWS lambda context duty.
-http.createServer(function (req, res) {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    //console.log(req);
-    Execute(req);
-    res.end('ok');
-}).listen(8124);
-
 //If the list name is one of our target names, remove it from the name array and return true.
 function ValidateName(name){
     var ion = listnames.indexOf(name);
@@ -236,8 +236,9 @@ function ValidateDataAgainst(val_obj, entry){
     return result;
 };
 
+//TODO: API gateway will want our response to have a content-type, and we have either a pdf or an error string. how do we deal with that?
 function SendValidationReport(report){
-
+    context.succeed(report);
 }
 
 //Doublecheck use of colors on cards. The spec allows for color coding but only when used declaratively.
@@ -441,6 +442,7 @@ function MakePDF(meta, data, filename, params){
         var pdfDoc = printer.createPdfKitDocument(docdef);
         pdfDoc.pipe(fs.createWriteStream('makepdfexample.pdf'));
         pdfDoc.end();
+        returnPDF(pdfDoc);
     });
 }
 

@@ -1,0 +1,61 @@
+.cf {
+  overflow: auto;
+  zoom: 1;
+}
+
+.center-main{
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1%;
+}
+
+.left{
+    float: left;
+}
+
+.right{
+    float: right;
+}
+
+.title{
+    font-family: 'Lato', sans-serif;
+    font-size: 2.0rem;
+}
+
+.body{
+    font-family: 'Lora', serif;
+    font-size: 0.8rem;
+}
+
+@media (max-width: 900px) {
+    .center-main{
+        width: 90%;
+    }
+
+    .subtitle{
+        font-size: 1.0rem;
+        padding: 0.4rem;
+    }
+    p, span{
+        font-size: 0.8rem;
+    }
+
+    .moment{
+        padding: 0.6em;
+    }
+
+    div.moment span{
+        font-size: 0.8rem;
+    }
+    .pure-img {
+        max-height: 150px;
+        padding-right: 24px;
+        float: left;
+    }
+    div.moment p:first-child{
+        -webkit-margin-before: 0px;
+        font-size: 0.8rem;
+        color: black;
+    }
+}
