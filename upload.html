@@ -15,9 +15,14 @@
         <script type="text/javascript" src="load.js"></script>
     </head>
     <body>
-        <div class="center-main">
-            <div class="cf title column">
-                <p>ERF Hydrant</p>
+        <div class="center-main cf">
+            
+            <div class="cf body column">
+                <div class="cf title">
+                    <p>ERF</p>
+                </div>
+                <p><b>ERF is a Next-Gen Artist Statement composition framework designed to produce artist statements that better keep step with generative art practices, lateralism, social media data representation, and collecting/list-making composition strategies.</b> This framework includes an opinionated desire to qualify and interconnect descriptors of practice so that a discrete system of meaning can be constructed instead of a narrative. </p>
+                <p class="omit"><b>This framework is likely to be unnecessary for workers who mainly use a narrative form.</b> This framework's spirit of description takes after three generational forms- the concrete poem, the resume, and the wiki. The overall design intent here is to incorporate the balance of freedom and structure found within a concrete poem, the iterative LIFO structure of the resume over time, and the interconnectedness and variable voice of the wiki.</p>
             </div>
             <div class="slab column">
                 <form id="upload" action="https://bfl2ntqq7j.execute-api.us-east-1.amazonaws.com/beta/erfmake" method="get" class="pure-form pure-form-stacked">
@@ -40,7 +45,7 @@
                         </div>
                         <div class="pure-control-group">
                             <label for="gutter">Column Gutter(px)</label> 
-                            <input type="text" name="gutter" value="10" id="gutter">
+                            <input type="number" name="gutter" placeholder="10" id="gutter">
                         </div>
                         <div class="pure-control-group">
                             <button type="submit" class="pure-button pure-button-primary" name="submiterf" style="primary" id="submiterf">Submit</button>

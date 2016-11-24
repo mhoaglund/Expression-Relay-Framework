@@ -1,10 +1,14 @@
+body{
+    background-color: #bed9ff;
+}
+
 .cf {
   overflow: auto;
   zoom: 1;
 }
 
 .center-main{
-    width: 80%;
+    width: 60%;
     margin-left: auto;
     margin-right: auto;
     margin-top: 1%;
@@ -15,16 +19,23 @@ label{
 }
 
 .slab{
-    padding: 42px;
+    
     background-color: #222;   
+}
+
+form{
+    padding: 42px;
 }
 
 .column{
     width: 50%;
+    float: left;
     margin-left: auto;
     margin-right: auto;
 }
-.pure-form-stacked input[type=text]{
+.pure-form-stacked input[type=text],
+.pure-form-stacked input[type=number]
+{
     width: 100%;
 }
 
@@ -49,12 +60,19 @@ form{
 
 .body{
     font-family: 'Lora', serif;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
+    line-height: 150%;
+}
+
+.body p{
+    margin-right: 40px;
 }
 
 .pure-control-group{
     margin-bottom: 24px;
     font-family: 'Lato', sans-serif;
+    font-size: 0.9rem;
+    line-height: 150%;
 }
 
 .pure-control-group:last-child{
@@ -69,20 +87,21 @@ input[type=checkbox], input[type=radio]{
     background-color: red;
 }
 
-@media (min-width: 1450px){
-    .column{
-        width: 35%;
+@media (max-width: 1300px){
+    .center-main{
+        width: 72%;
     }
 }
 
-@media (max-width: 750px) {
+@media (max-width: 850px) {
     .center-main{
         width: 90%;
     }
 
-    .column{
-        width: 70%;
+    .omit{
+        display: none;
     }
+
     .moment{
         padding: 0.6em;
     }
