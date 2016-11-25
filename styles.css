@@ -30,7 +30,7 @@ body{
 }
 
 .sottsass{
-    background-image: url("images/Memphis2-pattern-2336.jpg");
+    background-image: url("images/Untitled.jpg");
     background-repeat: repeat-y repeat-x;
     background-blend-mode: multiply;
 }
@@ -47,7 +47,11 @@ label{
 }
 
 form{
-    padding: 42px;
+    padding-top: 42px;
+    padding-bottom: 42px;
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .column{
@@ -62,12 +66,6 @@ form{
     width: 100%;
     border: 1px solid #222;
     border-radius: 0px;
-}
-
-form{
-    width: 50%;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 .left{
