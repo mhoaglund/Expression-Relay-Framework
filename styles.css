@@ -1,10 +1,17 @@
 body{
-    background-color: #bed9ff;
+    background-color: #efefef;
+    position: relative;
 }
 
 .cf {
   overflow: auto;
   zoom: 1;
+}
+
+.host{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .center-main{
@@ -14,13 +21,29 @@ body{
     margin-top: 1%;
 }
 
+.negate{
+    margin-top: -50px;
+}
+
+.white{
+    background-color: white;
+}
+
+.sottsass{
+    background-image: url("images/Memphis2-pattern-2336.jpg");
+    background-repeat: repeat-y repeat-x;
+    background-blend-mode: multiply;
+}
+
 label{
-    color: white;
+    color: #222;
 }
 
 .slab{
-    
-    background-color: #222;   
+    background-color: #dcefe0;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }
 
 form{
@@ -37,6 +60,8 @@ form{
 .pure-form-stacked input[type=number]
 {
     width: 100%;
+    border: 1px solid #222;
+    border-radius: 0px;
 }
 
 form{
@@ -54,18 +79,24 @@ form{
 }
 
 .title{
-    font-family: 'Lato', sans-serif;
-    font-size: 2.0rem;
+    font-family: 'Lora', sans-serif;
+    font-size: 1.2rem;
+    background-color: white;
 }
 
+    .title h1{
+        margin-left: 40px;
+        color: #6c8c73;
+    }
+
 .body{
-    font-family: 'Lora', serif;
+    font-family: 'Lato', serif;
     font-size: 0.9rem;
     line-height: 150%;
 }
 
 .body p{
-    margin-right: 40px;
+    margin: 40px;
 }
 
 .pure-control-group{
@@ -73,6 +104,7 @@ form{
     font-family: 'Lato', sans-serif;
     font-size: 0.9rem;
     line-height: 150%;
+    font-weight: bold;
 }
 
 .pure-control-group:last-child{
@@ -84,7 +116,9 @@ input[type=checkbox], input[type=radio]{
 }
 
 .pure-button-primary{
-    background-color: red;
+    background-color: white;
+    color: #222;
+    border: 1px solid #222;
 }
 
 @media (max-width: 1300px){
