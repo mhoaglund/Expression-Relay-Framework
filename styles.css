@@ -30,7 +30,7 @@ body{
 }
 
 .sottsass{
-    background-image: url("images/Untitled.jpg");
+    background-image: url("images/Memphis2-pattern-2336.jpg");
     background-repeat: repeat-y repeat-x;
     background-blend-mode: multiply;
 }
@@ -39,12 +39,20 @@ label{
     color: #222;
 }
 
+.column polygon{
+    fill: white;
+}
+
 .slab{
     background-color: #dcefe0;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
 }
+
+    .slab polygon{
+        fill: white;
+    }
 
 form{
     padding-top: 42px;
@@ -59,6 +67,13 @@ form{
     float: left;
     margin-left: auto;
     margin-right: auto;
+    position: relative;
+}
+
+svg.cornerfold{
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 .pure-form-stacked input[type=text],
 .pure-form-stacked input[type=number]
