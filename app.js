@@ -11,62 +11,38 @@ var fs = require('fs');
 var lodash = require('lodash');
 var querystring = require('querystring');
 
-nconf.file('tokens', awsloc + 'trelloconfig.json');
-//nconf.file('spec', 'en_erfspec.json')
+if(process.env.TRELLOKEY){
+    var trello = new Trello(process.env.TRELLOKEY,process.env.TRELLOTOKEN);
+}
 
-var trello = new Trello(nconf.get('trello:key'),nconf.get('trello:token'));
 var listnames = [];
 var validColors = [];
-//var yellowCorrection = '#e2d812';
 var yellowCorrection = '#F2D600';
 var blueCorrection = '#0079BF';
 var redCorrection = '#EB5A46';
-var baseGray = '#545454'; //default gray so color text doesn't recede
+var baseGray = '#545454';
 
 var vnum = 'v0.1';
 var currdate = new Date().toJSON().slice(0,10).toString();
 
-var boardMeta = ['name']; //getBoardFieldbyName
-//Note: 'desc' field that comes back with most board JSONs is being phased out.
-//Maybe that means something in the spec for an intro paragraph, or is that sacrelige?
+var boardMeta = ['name'];
 
 var defaultfilename = 'statement';
 var defaultappend = '_1';
-var awsloc = "";
-//var awsloc = 'https://s3.amazonaws.com/erf-materials/';
 
-//Example URL:  https://trello.com/b/yeaRDUaD/work-description
-//OR:           https://trello.com/b/yeaRDUaD
-//iterate over the board, building a pdf out of it, then replying with the pdf.
+var specname = "en_erfspec.json";
+nconf.file('spec', specname);
+
 exports.handler = function(event, context){
-    // hook up query params in API gateway
-    // event.targetboard
-    // event.colorcoded
-    // event.lang
-    // event.customorder
-    // event.ccodestyle
-    // event.gutter
-    // event.name
-    // etc...
     Execute(event);
 };
 
-//TEST URL
+//example query
 //http://localhost:8124/&targetboard=yeaRDUaD&isColorCoded=1&lang=en&ccodestyle=1&gutter=10&name=Maxwell%20Hoaglund
-
-//this server has no future. This will be refactored for AWS lambda context duty.
-http.createServer(function (req, res) {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    //console.log(req);
-    var params = querystring.parse(req.url)
-    Execute(params);
-    res.end('ok');
-}).listen(8124);
 
 function Execute(query){
     var boarduri = '';
     var params = query; //event object from aws
-    //var params = querystring.parse(query.url)
     if(vurl.isUri(params.targetboard)){
         boarduri = params.targetboard;
     }
@@ -80,22 +56,20 @@ function Execute(query){
             'User-Agent': 'Mozilla/5.0'
         }
     }
+    console.log("BUCKET:" + process.env.S3BUCKET);
 
-    //Can localize using alternate language specs
-
-    var specname = "";
+    var awsloc = process.env.S3BUCKET.toString();
     
-    if(params.lang){
-        specname = params.lang + "_" + "erfspec.json";
-    }
-    else{
-        specname = 'en_erfspec.json';
-    }
+    // if(params.lang){
+    //     specname = params.lang + "_" + "erfspec.json";
+    // }
+    // else{
+    //     specname = 'en_erfspec.json';
+    // }
 
-    nconf.file('spec', awsloc + specname);
+    // nconf.file('spec', awsloc + specname);
     listnames = nconf.get('spec:listnames');
-    //Some cause for concern here. We could go barreling past this before the config file comes back.
-    
+
     //TODO: track an error string through this to intelligently help users who didnt quite nail the spec
     trello.getListsOnBoard(params.targetboard, function(error, lists){
             if(!error){
@@ -112,7 +86,7 @@ function Execute(query){
                 async.filter(boardMeta, function(field, callback){
                     trello.getBoardFieldbyName(params.targetboard, field, function(err, data){
                         if(!err){
-                            console.log('got' + data._value);
+                            //console.log('got' + data._value);
                             Meta.push(data._value);  
                         }
                         else console.log(err);
@@ -123,7 +97,6 @@ function Execute(query){
                 async.filter(lists, function(list, topcallback){
                     var validation;
                     if(ValidateName(list.name) == true){
-                        //console.log('Grabbing cards from ' + list.name);  
                         validation = LoadValidationSchema(list.name);
                         var coll = [];
                         trello.getCardsOnList(list.id, function(err, data){
@@ -176,8 +149,7 @@ function Execute(query){
                         console.log(validationResult);
                         ResolveListOrder(listnames, data, function(err, ordereddata){
                             if(validationResult.length ==0) {
-                                //CreatePDF(ordereddata, defaultfilename, params.customfont); //couldnt the font be an object? maybe we need a middle step here
-                                MakePDF(Meta, ordereddata, defaultfilename, params); //MakePDF results in larger files, so maybe hang onto the base pdfkit impo for now
+                                MakePDF(Meta, ordereddata, defaultfilename, params);
                             }
                             else{
                                 SendValidationReport(validationResult);
@@ -303,35 +275,8 @@ function ResolveListOrder(listorder, lists, cb){
     }
 };
 
-//***Deprecated for now.
-function CreatePDF(data, filename, cfont){
-    doc = new pdfdoc;
-    doc.fontSize(8);
-    if(cfont == '' | !cfont){
-        doc.font(awsloc + 'fonts/NotoSans-Regular.ttf');
-    }
-    else{
-        doc.font(awsloc + 'fonts/' + cfont);
-    }
-    
-    doc.pipe(fs.createWriteStream(filename + '.pdf'));
-    async.filter(data, function(list,callback){
-        list.cards.forEach(function(card){
-            var cardcolor = 'black';
-            if(card.hasOwnProperty('color') && card.color){
-                cardcolor = card.color;
-            }
-            doc.fillColor(cardcolor.toString()).text(card.info.toString(), {
-                align: 'left'
-            });
-        }); 
-        callback(null, list);
-    }, function(err, res){
-        doc.end();
-    });
-}
-
 function MakePDF(meta, data, filename, params){
+    //TODO pass in a font that was sent with the form
     var fonts = {
         Roboto: {
             normal: 'fonts/NotoSans-Regular.ttf',
@@ -443,13 +388,12 @@ function MakePDF(meta, data, filename, params){
     }, function(err, res){
         docdef.content.push({ text: 'Compiled with Expression Relay Framework ' + vnum + ' on ' + currdate, style: '_footer'});
         var pdfDoc = printer.createPdfKitDocument(docdef);
-        pdfDoc.pipe(fs.createWriteStream('makepdfexample.pdf'));
+        pdfDoc.pipe(fs.createWriteStream('/tmp/makepdfexample.pdf'));
         pdfDoc.end();
-        returnPDF(pdfDoc);
+        returnPDF(pdfDoc, null);
     });
 }
 
-//Lambda-specific. This is pretty old here.
 function returnError(report){
     if(!report){
         var output = "The ERF service is currently down. Please try again later."
@@ -457,6 +401,8 @@ function returnError(report){
     context.succeed(output);
 };
 
-function returnPDF(doc){
-    context.succeed(doc);
+function returnPDF(doc, context){
+    if(context){
+        context.succeed(doc);
+    }
 };
