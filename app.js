@@ -406,12 +406,13 @@ function returnError(report){
 
 function dropPDF(doc){
         //var params = {Bucket: 'erf-materials', Key: process.env.AWSKEY, Body: doc};
+        var _stream = fs.createReadStream('/tmp/makepdfexample.pdf');
         var params = {
             Bucket: 'erf-materials',
             Key: 'testpdf',
             ContentType: 'application/pdf',
             ACL: 'public-read',
-            Body: '/tmp/makepdfexample.pdf'
+            Body: _stream
         };
         s3.upload(params, function(err){
             if(!err) {
