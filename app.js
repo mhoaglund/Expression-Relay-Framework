@@ -405,7 +405,14 @@ function returnError(report){
 };
 
 function dropPDF(doc){
-        var params = {Bucket: 'erf-materials', Key: process.env.AWSKEY, Body: doc};
+        //var params = {Bucket: 'erf-materials', Key: process.env.AWSKEY, Body: doc};
+        var params = {
+            Bucket: 'erf-materials',
+            Key: 'testpdf',
+            ContentType: 'application/pdf',
+            ACL: 'public-read',
+            Body: '/tmp/makepdfexample.pdf'
+        };
         s3.upload(params, function(err){
             if(!err) {
                 var responseBody = "Entry created.";
