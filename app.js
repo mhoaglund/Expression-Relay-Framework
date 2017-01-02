@@ -48,6 +48,7 @@ exports.handler = function(event, context){
     // event.gutter
     // event.name
     // etc...
+    Execute(event);
 };
 
 //TEST URL
@@ -57,13 +58,15 @@ exports.handler = function(event, context){
 http.createServer(function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/html'});
     //console.log(req);
-    Execute(req);
+    var params = querystring.parse(req.url)
+    Execute(params);
     res.end('ok');
 }).listen(8124);
 
 function Execute(query){
     var boarduri = '';
-    var params = querystring.parse(query.url)
+    var params = query; //event object from aws
+    //var params = querystring.parse(query.url)
     if(vurl.isUri(params.targetboard)){
         boarduri = params.targetboard;
     }
