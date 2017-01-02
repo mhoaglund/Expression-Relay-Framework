@@ -21,6 +21,7 @@
   "homepage": "https://github.com/mhoaglund/Expression-Relay-Framework#readme",
   "dependencies": {
     "async": "^2.0.1",
+    "aws-sdk": "^2.7.20",
     "is-json": "^2.0.0",
     "lodash": "^4.16.4",
     "nconf": "^0.8.4",

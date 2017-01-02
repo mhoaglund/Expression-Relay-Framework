@@ -10,6 +10,8 @@ var http = require('http');
 var fs = require('fs');
 var lodash = require('lodash');
 var querystring = require('querystring');
+var AWS = require('aws-sdk');
+var s3 = new AWS.S3();
 
 if(process.env.TRELLOKEY){
     var trello = new Trello(process.env.TRELLOKEY,process.env.TRELLOTOKEN);
@@ -32,8 +34,9 @@ var defaultappend = '_1';
 
 var specname = "en_erfspec.json";
 nconf.file('spec', specname);
-
+var _context = '';
 exports.handler = function(event, context){
+    _context = context;
     Execute(event);
 };
 
@@ -390,7 +393,7 @@ function MakePDF(meta, data, filename, params){
         var pdfDoc = printer.createPdfKitDocument(docdef);
         pdfDoc.pipe(fs.createWriteStream('/tmp/makepdfexample.pdf'));
         pdfDoc.end();
-        returnPDF(pdfDoc, null);
+        dropPDF(pdfDoc);
     });
 }
 
@@ -401,8 +404,32 @@ function returnError(report){
     context.succeed(output);
 };
 
-function returnPDF(doc, context){
-    if(context){
-        context.succeed(doc);
-    }
+function dropPDF(doc){
+        var params = {Bucket: 'erf-materials', Key: process.env.AWSKEY, Body: doc};
+        s3.upload(params, function(err){
+            if(!err) {
+                var responseBody = "Entry created.";
+                var response = {
+                    statusCode: 200,
+                    headers: {
+                        "Content-Type" : "application/javascript"
+                    },
+                    body: JSON.stringify(responseBody)
+                };
+                console.log('Good to go!');
+                _context.succeed(response);
+            }
+            else{
+                var responseBody = "Couldn't create entry. Something went wrong.";
+                var response = {
+                    statusCode: 200,
+                    headers: {
+                        "Content-Type" : "application/javascript"
+                    },
+                    body: JSON.stringify(responseBody)
+                };
+                console.log('Error occurred: ' + err);
+                _context.succeed(response);
+            } 
+        });
 };
