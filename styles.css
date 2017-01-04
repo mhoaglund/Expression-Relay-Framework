@@ -21,6 +21,7 @@ body{
     margin-top: 1%;
 }
 
+
 .negate{
     margin-top: -50px;
 }
@@ -92,7 +93,7 @@ svg.cornerfold{
 }
 
 .title{
-    font-family: 'Lora', sans-serif;
+    font-family: 'Oranienbaum';
     font-size: 1.2rem;
     background-color: white;
 }
@@ -103,8 +104,8 @@ svg.cornerfold{
     }
 
 .body{
-    font-family: 'Lato', serif;
-    font-size: 0.9rem;
+    font-family: 'Nunito Sans', serif;
+    font-size: 1.3rem;
     line-height: 150%;
 }
 
@@ -115,7 +116,7 @@ svg.cornerfold{
 .pure-control-group{
     margin-bottom: 24px;
     font-family: 'Lato', sans-serif;
-    font-size: 0.9rem;
+    font-size: 1.3rem;
     line-height: 150%;
     font-weight: bold;
 }
