@@ -37,11 +37,13 @@ nconf.file('spec', specname);
 var _context = '';
 exports.handler = function(event, context){
     _context = context;
+    console.log(event);
     Execute(event);
+    
 };
 
 //example query
-//http://localhost:8124/&targetboard=yeaRDUaD&isColorCoded=1&lang=en&ccodestyle=1&gutter=10&name=Maxwell%20Hoaglund
+//http://localhost:8124/&targetboard=yeaRDUaD&isColorCoded=yes&lang=en&ccodestyle=outline&gutter=10&name=Maxwell%20Hoaglund
 
 function Execute(query){
     var boarduri = '';
@@ -89,7 +91,6 @@ function Execute(query){
                 async.filter(boardMeta, function(field, callback){
                     trello.getBoardFieldbyName(params.targetboard, field, function(err, data){
                         if(!err){
-                            //console.log('got' + data._value);
                             Meta.push(data._value);  
                         }
                         else console.log(err);
@@ -109,7 +110,7 @@ function Execute(query){
                                     var clr;
                                     
                                     //In json spec,  color code list name is always first. It's either that or create another property in the spec object.
-                                    if(params.isColorCoded && list.name.toLowerCase() == listnames[0]){
+                                    if(params.isColorCoded == "yes" && list.name.toLowerCase() == listnames[0]){
                                         //store color codes in an array so we can check for valid application of the colors in the cards
                                         clr = null;
                                         if(card.labels.length > 0) clr = (card.labels[0].color) ? card.labels[0].color : 'none';
@@ -117,7 +118,7 @@ function Execute(query){
                                             validColors.push(clr);
                                         }
                                     }
-                                    if(params.isColorCoded){
+                                    if(params.isColorCoded == "yes"){
                                         clr = null;
                                         if(card.labels.length > 0) clr = (card.labels[0].color) ? card.labels[0].color : 'none';
                                         Card.color = clr;
@@ -216,7 +217,14 @@ function ValidateDataAgainst(val_obj, entry){
 
 //TODO: API gateway will want our response to have a content-type, and we have either a pdf or an error string. how do we deal with that?
 function SendValidationReport(report){
-    context.succeed(report);
+    var response = {
+        statusCode: 200,
+        headers: {
+            "Content-Type" : "application/javascript"
+        },
+        body: JSON.stringify(report)
+    };
+    _context.succeed(response);
 }
 
 //Doublecheck use of colors on cards. The spec allows for color coding but only when used declaratively.
@@ -280,6 +288,7 @@ function ResolveListOrder(listorder, lists, cb){
 
 function MakePDF(meta, data, filename, params){
     //TODO pass in a font that was sent with the form
+    console.log('making pdf...');
     var fonts = {
         Roboto: {
             normal: 'fonts/NotoSans-Regular.ttf',
@@ -324,7 +333,7 @@ function MakePDF(meta, data, filename, params){
         docdef.content.push(list_title);
         if(list.name.toLowerCase() == listnames[0]){
             //use a table for the color code
-            if(params.ccodestyle === "1"){ 
+            if(params.ccodestyle == "outline"){ 
                 //TODO here, we're forking into two possible paths just to generate structure of a json object differently.
                 //we should just generate and then rearrange depending on ccodestyle.
                 var columnhost = {style: 'vmargin',columns:[]};
@@ -397,15 +406,9 @@ function MakePDF(meta, data, filename, params){
     });
 }
 
-function returnError(report){
-    if(!report){
-        var output = "The ERF service is currently down. Please try again later."
-    }
-    context.succeed(output);
-};
-
 function dropPDF(doc){
         //var params = {Bucket: 'erf-materials', Key: process.env.AWSKEY, Body: doc};
+        console.log('opening file...');
         var _stream = fs.createReadStream('/tmp/makepdfexample.pdf');
         var params = {
             Bucket: 'erf-materials',

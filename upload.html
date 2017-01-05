@@ -12,7 +12,7 @@
         <link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
         
-        <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+        <link rel="stylesheet" href="pure-min.css">
         <link rel="stylesheet" href="styles.css">
 
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -51,23 +51,27 @@
                 <div class="column"><p class="omit"><b>This framework is likely to be unnecessary for workers who mainly use a narrative form.</b> This framework's spirit of description takes after three generational forms- the concrete poem, the resume, and the wiki. The overall design intent here is to incorporate the balance of freedom and structure found within a concrete poem, the iterative LIFO structure of the resume over time, and the interconnectedness and variable voice of the wiki.</p>
                 <p>If you've used ERF before, fill out this form to create a PDF. If you're new to using ERF to create artist statement, continue reading below.</p></div>
                 <div class="column">
-                    <form id="upload" action="https://bfl2ntqq7j.execute-api.us-east-1.amazonaws.com/beta/erfmake" method="get" class="pure-form pure-form-stacked">
+                    <form id="upload" action="https://tigxfk82oi.execute-api.us-east-1.amazonaws.com/prod/CreateERFDoc" method="get" class="pure-form pure-form-stacked">
                         <fieldset>
                             <div class="pure-control-group">
-                                <input type="text" required="" placeholder="Board ID" name="boardid" id="boardid" aria-required="true">
+                                <input type="text" required placeholder="Board ID" name="targetboard" id="targetboard" aria-required="true">
                             </div>
                             <div class="pure-control-group">
-                                <input type="text" required=""name="fname" id="fname" placeholder="Artist Name" aria-required="true">
+                                <input type="text" required name="name" id="name" placeholder="Artist Name" aria-required="true">
+                            </div>
+                             <div class="pure-control-group">
+                                <input type="text" required="" name="lang" id="langshow" placeholder="Language" aria-required="true">
+                                <input type="hidden" value="en" id="lang">
                             </div>
                             <div class="pure-control-group">
-                                <input type="checkbox" toggle="true" name="ccode" id="ccode" >Is Board Color Coded?
+                                <input type="checkbox" toggle="true" name="isColorCoded" id="isColorCoded" checked="yes" value="yes" >Is Board Color Coded?
                             </div>
                             
                             <div class="pure-control-group">
-                                <label for="ccodegroup" class="pure-checkbox">Color Code Style  </label>
-                                <input value="solid" type="radio" class="ccodegroup" name="ccodegroup" id="ccodegroup-0"> Solid
+                                <label for="ccodestyle" class="pure-checkbox">Color Code Style  </label>
+                                <input value="solid" type="radio" class="ccodegroup" name="ccodestyle" id="ccodegroup-0" checked="solid"> Solid
                                 &nbsp;
-                                <input value="outline" type="radio" class="ccodegroup" name="ccodegroup" id="ccodegroup-1" checked=""> Outline
+                                <input value="outline" type="radio" class="ccodegroup" name="ccodestyle" id="ccodegroup-1" checked="outline"> Outline
                             </div>
                             <div class="pure-control-group">
                                 <label for="gutter">Column Gutter(px)</label> 
