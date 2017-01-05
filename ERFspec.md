@@ -1,4 +1,4 @@
-# Expression Relay Framework
+# Expression Relay Framework Open Spec v0.1
 
 ERF is a Next-Gen Artist Statement composition framework designed to produce artist statements that better keep step with generative art practices, lateralism, social media data representation, and collecting/list-making composition strategies. This framework includes an opinionated desire to qualify and interconnect descriptors of practice so that a discrete system of meaning can be constructed instead of a narrative. (This framework is likely to be an unnecessary hindrance for workers who mainly use a narrative form.) This framework's spirit of description takes after three generational forms- the concrete poem, the resume, and the wiki. In particular the resume and the wiki benefit from representing complicated things (work experience, or some systemic knowledge) using lists that can be maintained individually. The concrete poem benefits from the capacity to mute and recast connections between nodes of meaning. This happens in artistic practice, of course.
 

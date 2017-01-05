@@ -51,6 +51,12 @@ body{
     background-color: #e6d69f;
 }
 
+.dogear{
+    -webkit-box-shadow: -2px 2px 6px 0px rgba(0,0,0,0.2);
+    -moz-box-shadow: -2px 2px 6px 0px rgba(0,0,0,0.2);
+    box-shadow: -2px 2px 6px 0px rgba(0,0,0,0.2)
+}
+
 .sottsass{
     background-color: white;
     background-image: url(images/example.png);
@@ -97,8 +103,25 @@ form{
     position: relative;
 }
 
+menu{
+    margin-top: 50px;
+    margin-right: 40px;
+    font-size: 1rem;
+    font-family: 'Nunito Sans';
+    border-bottom: 1px dotted #cecece;
+}
+
 svg.cornerfold{
     position: absolute;
+    top: 12px;
+}
+
+svg.cornerfold.paper{
+    top: 0px;
+    right: 0px;
+}
+
+svg.cornerfold.accent{
     top: 12px;
     left: 12px;
 }
@@ -128,6 +151,9 @@ svg.cornerfold{
         font-weight: 900;
         margin-left: 40px;
         color: black;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        float: left;
     }
 
 .textmain{
@@ -144,10 +170,13 @@ svg.cornerfold{
     line-height: 150%;
 }
 
-p{
+p, h1, h2, ul{
     margin: 52px;
     margin-left: 80px;
-    
+}
+
+h2{
+    color: purple;
 }
 
 p,form{
@@ -174,6 +203,11 @@ input[type=checkbox], input[type=radio]{
     color: #222;
     border: 1px solid #222;
 }
+
+#specdoc{
+    background-color: 
+}
+
 
 @media (max-width: 1300px){
     .center-main{
