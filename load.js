@@ -1,6 +1,8 @@
+setOalls();
+
 var data = {
 	active: initText,
-	google : {families: ['Cardo:italic', 'Roboto:300,100', 'Cutive Mono', 'Oranienbaum', 'Nunito Sans:900,700,500,300']}
+	google : {families: ['Cardo:italic', 'Roboto:300,100', 'Cutive Mono', 'Oranienbaum', 'Nunito Sans:900,700,500,300,200']}
 };
 
 WebFont.load(data);
@@ -10,12 +12,13 @@ var oallwth;
 var oallctr;
 
 function setOalls(){
-	 oallht = $(window).height();
-	 oallwth = $(window).width(); 
+	 oallht = $(document).height();
+	 oallwth = $(document).width(); 
+	 winht = $(window).height();
 	 oallctr = {x: (oallwth/2), y: (oallht/2) };
 	 formht = $('#formcontainer').height();
-	 $('.slab').css({
-		 height: formht + 'px'
+	 $('#plate').css({
+		 height: winht
 	 });
 }
 
@@ -25,5 +28,4 @@ function initText(){
 
 $( window ).resize(function() {
 	setOalls();
-	txtRemake();
 });

@@ -1,6 +1,5 @@
 body{
     background-color: #efefef;
-    position: relative;
 }
 
 .cf {
@@ -8,32 +7,65 @@ body{
   zoom: 1;
 }
 
+.ilb{
+    display: inline-block;
+}
+
+.rt{
+    float: right;
+}
+
 .host{
+    position: relative;
+}
+
+.bottom{
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
+    bottom: 0;
+}
+
+.full{
+    position: absolute;
+    top:0px;
+    left:0px;
+    width: 100%;
+    height: 100%;
 }
 
 .center-main{
-    width: 60%;
+    max-width: 60%;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 1%;
-}
-
-
-.negate{
-    margin-top: -50px;
+    z-index: 0;
 }
 
 .white{
     background-color: white;
 }
 
+.bl{
+    background-color: #d9cfea;
+}
+
+.gold{
+    background-color: #e6d69f;
+}
+
 .sottsass{
-    background-image: url("images/Memphis2-pattern-2336.jpg");
-    background-repeat: repeat-y repeat-x;
+    background-color: white;
+    background-image: url(images/example.png);
+    background-repeat: no-repeat;
+    background-position: center top;
     background-blend-mode: multiply;
+    background-size: cover;
+}
+
+.blur{
+    -webkit-filter: blur(5px);
+    -moz-filter: blur(5px);
+    -o-filter: blur(5px);
+    -ms-filter: blur(5px);
+    filter: blur(5px);
 }
 
 label{
@@ -45,22 +77,16 @@ label{
 }
 
 .slab{
-    background-color: #dcefe0;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
+    background-color: white;
 }
 
-    .slab polygon{
-        fill: white;
-    }
-
 form{
-    padding-top: 42px;
-    padding-bottom: 42px;
-    width: 70%;
+    padding-top: 60px;
+    padding-bottom: 60px;
     margin-left: auto;
-    margin-right: auto;
 }
 
 .column{
@@ -73,8 +99,8 @@ form{
 
 svg.cornerfold{
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 12px;
+    left: 12px;
 }
 .pure-form-stacked input[type=text],
 .pure-form-stacked input[type=number]
@@ -93,32 +119,46 @@ svg.cornerfold{
 }
 
 .title{
-    font-family: 'Oranienbaum';
-    font-size: 1.2rem;
-    background-color: white;
+    font-size: 1.3rem;
+    position: relative;
 }
 
     .title h1{
+        font-family: 'Nunito Sans';
+        font-weight: 900;
         margin-left: 40px;
-        color: #6c8c73;
+        color: black;
     }
 
-.body{
+.textmain{
     font-family: 'Nunito Sans', serif;
-    font-size: 1.3rem;
+    font-size: 2.0rem;
+    line-height: 150%;
+    font-weight: 200;
+    position: relative;
+}
+
+.text{
+    font-family: 'Nunito Sans', serif;
+    font-size: 1rem;
     line-height: 150%;
 }
 
-.body p{
-    margin: 40px;
+p{
+    margin: 52px;
+    margin-left: 80px;
+    
+}
+
+p,form{
+margin-right: 80px;
 }
 
 .pure-control-group{
     margin-bottom: 24px;
-    font-family: 'Lato', sans-serif;
-    font-size: 1.3rem;
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 1rem;
     line-height: 150%;
-    font-weight: bold;
 }
 
 .pure-control-group:last-child{
@@ -137,13 +177,37 @@ input[type=checkbox], input[type=radio]{
 
 @media (max-width: 1300px){
     .center-main{
-        width: 72%;
+        max-width: 72%;
+    }
+}
+
+@media (max-width: 1200px){
+   .text{
+        font-size: 1.0rem;
+        line-height: 150%;
+    }
+    .center-main{
+        max-width: 80%;
     }
 }
 
 @media (max-width: 850px) {
     .center-main{
-        width: 90%;
+        max-width: 90%;
+    }
+
+    form{
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    .textmain{
+        font-size: 1.5rem;
+        line-height: 125%;
+    }
+
+    .column{
+        width: 100%;
     }
 
     .omit{
@@ -167,4 +231,55 @@ input[type=checkbox], input[type=radio]{
         font-size: 0.8rem;
         color: black;
     }
+
+    form{
+        margin-left: 80px;
+    }
+    p,form{ 
+    margin: 20px;
+    margin-right: 40px;
+    margin-left: 40px;
+    }
+
+@media (max-width: 650px) {
+    .center-main{
+        max-width: 100%;
+    }
+
+    .textmain{
+        font-size: 1.5rem;
+        line-height: 125%;
+    }
+
+    .column{
+        width: 100%;
+    }
+
+    .omit{
+        display: none;
+    }
+
+    .moment{
+        padding: 0.6em;
+    }
+
+    div.moment span{
+        font-size: 0.8rem;
+    }
+    .pure-img {
+        max-height: 150px;
+        padding-right: 24px;
+        float: left;
+    }
+    div.moment p:first-child{
+        -webkit-margin-before: 0px;
+        font-size: 0.8rem;
+        color: black;
+    }
+    p,form{ 
+    margin: 20px;
+    margin-right: 40px;
+    margin-left: 40px;
+    }
+}
 }

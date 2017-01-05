@@ -1,3 +1,4 @@
+<!DOCTYPE HTML>
 <html>
     <head>
         <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js"></script>
@@ -16,53 +17,70 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         
     </head>
-    <body class="sottsass">
-        <div class="host">
-        <div class="center-main cf negate title">
-            <h1>Expression Relay Framework</h1>
-        </div>
-        <div class="center-main cf white">
-            <div class="cf body column" id="formcontainer">
+    <body >
+        <div id="plate" class="sottsass">
+            <div class="sottsass blur full"></div>
+            <div class="center-main cf title white">
                 <svg width="24" height="24" class="cornerfold" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                    <polygon points="0 0, 24 0, 0 24" fill="#dcefe0"></polygon>
-                </svg>
-                <p><b>ERF is a Next-Gen Artist Statement composition framework designed to produce artist statements that better keep step with generative art practices, lateralism, social media data representation, and collecting/list-making composition strategies.</b> This framework includes an opinionated desire to qualify and interconnect descriptors of practice so that a discrete system of meaning can be constructed instead of a narrative. </p>
-                <p class="omit"><b>This framework is likely to be unnecessary for workers who mainly use a narrative form.</b> This framework's spirit of description takes after three generational forms- the concrete poem, the resume, and the wiki. The overall design intent here is to incorporate the balance of freedom and structure found within a concrete poem, the iterative LIFO structure of the resume over time, and the interconnectedness and variable voice of the wiki.</p>
-            </div>
-            <div class="slab column">
-                <svg width="24" height="24" class="cornerfold" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                    <polygon points="0 0, 24 0, 0 24"></polygon>
-                </svg>
-                <form id="upload" action="https://bfl2ntqq7j.execute-api.us-east-1.amazonaws.com/beta/erfmake" method="get" class="pure-form pure-form-stacked">
-                    <fieldset>
-                        <div class="pure-control-group">
-                            <input type="text" required="" placeholder="Board ID" name="boardid" id="boardid" aria-required="true">
-                        </div>
-                        <div class="pure-control-group">
-                            <input type="text" required=""name="fname" id="fname" placeholder="Artist Name" aria-required="true">
-                        </div>
-                        <div class="pure-control-group">
-                            <input type="checkbox" toggle="true" name="ccode" id="ccode" >Is Board Color Coded?
-                        </div>
-                        
-                        <div class="pure-control-group">
-                            <label for="ccodegroup" class="pure-checkbox">Color Code Style  </label>
-                            <input value="solid" type="radio" class="ccodegroup" name="ccodegroup" id="ccodegroup-0"> Solid
-                            &nbsp;
-                            <input value="outline" type="radio" class="ccodegroup" name="ccodegroup" id="ccodegroup-1" checked=""> Outline
-                        </div>
-                        <div class="pure-control-group">
-                            <label for="gutter">Column Gutter(px)</label> 
-                            <input type="number" name="gutter" placeholder="10" id="gutter">
-                        </div>
-                        <div class="pure-control-group">
-                            <button type="submit" class="pure-button pure-button-primary" name="submiterf" style="primary" id="submiterf">Submit</button>
-                        </div>
-                    </fieldset>
-                </form>
-            </div>
-        </div>
+                            <polygon points="0 0, 24 0, 0 24" fill="#dcefe0"></polygon>
+                        </svg>
+                    <h1>Expression Relay Framework</h1>
+                </div>
+            <section class="bottom">
+                <div class="center-main cf bl">
+                    <div class="cf textmain ">
+                        <svg width="24" height="24" class="cornerfold" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="0 0, 24 0, 0 24" fill="#dcefe0"></polygon>
+                        </svg>
+                        <p><i>ERF</i> is a Next-Gen Artist Statement composition framework designed to leverage Trello boards to produce artist statements that better keep step with generative art practices, lateralism, social media data representation, and collecting/list-making composition strategies. This framework includes an opinionated desire to qualify and interconnect descriptors of practice so that a discrete system of meaning can be constructed <i>instead</i> of a narrative. </p>
+                    </div>
+                </div>
+            </section>
+            
+        
         </div> <!--End of host div-->
+        <div class="center-main">
+        <div class="slab text cf"  id="formcontainer">
+                
+                <div class="column"><p class="omit"><b>This framework is likely to be unnecessary for workers who mainly use a narrative form.</b> This framework's spirit of description takes after three generational forms- the concrete poem, the resume, and the wiki. The overall design intent here is to incorporate the balance of freedom and structure found within a concrete poem, the iterative LIFO structure of the resume over time, and the interconnectedness and variable voice of the wiki.</p>
+                <p>If you've used ERF before, fill out this form to create a PDF. If you're new to using ERF to create artist statement, continue reading below.</p></div>
+                <div class="column">
+                    <form id="upload" action="https://bfl2ntqq7j.execute-api.us-east-1.amazonaws.com/beta/erfmake" method="get" class="pure-form pure-form-stacked">
+                        <fieldset>
+                            <div class="pure-control-group">
+                                <input type="text" required="" placeholder="Board ID" name="boardid" id="boardid" aria-required="true">
+                            </div>
+                            <div class="pure-control-group">
+                                <input type="text" required=""name="fname" id="fname" placeholder="Artist Name" aria-required="true">
+                            </div>
+                            <div class="pure-control-group">
+                                <input type="checkbox" toggle="true" name="ccode" id="ccode" >Is Board Color Coded?
+                            </div>
+                            
+                            <div class="pure-control-group">
+                                <label for="ccodegroup" class="pure-checkbox">Color Code Style  </label>
+                                <input value="solid" type="radio" class="ccodegroup" name="ccodegroup" id="ccodegroup-0"> Solid
+                                &nbsp;
+                                <input value="outline" type="radio" class="ccodegroup" name="ccodegroup" id="ccodegroup-1" checked=""> Outline
+                            </div>
+                            <div class="pure-control-group">
+                                <label for="gutter">Column Gutter(px)</label> 
+                                <input type="number" name="gutter" placeholder="10" id="gutter">
+                            </div>
+                            <div class="pure-control-group rt">
+                                <button type="submit" class="pure-button pure-button-primary" name="submiterf" style="primary" id="submiterf">Submit</button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <section class="center-main text gold cf">
+            <div class="textmain">
+                <p><b>Getting Started</b></p>
+            </div>
+            <p><b>This framework defines a spec for constructing a Trello board to act as an artist statement. </b>This framework includes an opinionated desire to qualify and interconnect descriptors of practice so that a discrete system of meaning can be constructed <i>instead</i> of a narrative. </p>
+        </section>
     </body>
     <script type="text/javascript" src="load.js"></script>
 </html>
