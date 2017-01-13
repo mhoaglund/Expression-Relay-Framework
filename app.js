@@ -32,6 +32,7 @@ var boardMeta = ['name'];
 var defaultfilename = 'statement';
 var defaultappend = '_1';
 
+var docname = "yourstatement"
 var specname = "en_erfspec.json";
 nconf.file('spec', specname);
 var _context = '';
@@ -81,13 +82,14 @@ function Execute(query){
                 var Meta = [];
                 if(params.name){
                     //TODO: smoke test this for special characters.
-                    var cleanname = decodeURI(params.name);
-                    Meta.push(cleanname);
+                    nlname = decodeURI(params.name);
+                    docname = nlname.split(' ').slice(-1)[0];
+                    Meta.push(nlname);
                 }
                 
                 var All = [];
                 var validationResult = [];
-                if(typeof lists == 'string') return; //sometimes trello's api will just chuck an error string back at you. Maybe that's my fault?
+                if(typeof lists == 'string') return;
                 async.filter(boardMeta, function(field, callback){
                     trello.getBoardFieldbyName(params.targetboard, field, function(err, data){
                         if(!err){
@@ -412,23 +414,16 @@ function dropPDF(doc){
         var _stream = fs.createReadStream('/tmp/makepdfexample.pdf');
         var params = {
             Bucket: 'erf-materials',
-            Key: 'testpdf',
+            Key: docname,
             ContentType: 'application/pdf',
             ACL: 'public-read',
             Body: _stream
         };
         s3.upload(params, function(err){
             if(!err) {
-                var responseBody = "Entry created.";
-                var response = {
-                    statusCode: 200,
-                    headers: {
-                        "Content-Type" : "application/javascript"
-                    },
-                    body: JSON.stringify(responseBody)
-                };
+                var responseBody = process.env.S3BUCKET.toString() + docname;
                 console.log('Good to go!');
-                _context.succeed(response);
+                _context.succeed({location: responseBody});
             }
             else{
                 var responseBody = "Couldn't create entry. Something went wrong.";
@@ -437,10 +432,10 @@ function dropPDF(doc){
                     headers: {
                         "Content-Type" : "application/javascript"
                     },
-                    body: JSON.stringify(responseBody)
+                    body: responseBody
                 };
                 console.log('Error occurred: ' + err);
-                _context.succeed(response);
+                _context.succeed(JSON.stringify(response));
             } 
         });
 };
