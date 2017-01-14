@@ -71,7 +71,6 @@ function Execute(query){
             if(!error){
                 var Meta = [];
                 if(params.name){
-                    //TODO: smoke test this for special characters.
                     nlname = decodeURI(params.name);
                     docname = nlname.split(' ').slice(-1)[0];
                     Meta.push(nlname);
@@ -80,15 +79,11 @@ function Execute(query){
                 var All = [];
                 var validationResult = [];
                 if(typeof lists == 'string') return;
-                async.filter(boardMeta, function(field, callback){
-                    trello.getBoardFieldbyName(params.targetboard, field, function(err, data){
-                        if(!err){
-                            Meta.push(data._value);  
-                        }
-                        else console.log(err);
-                    });
-                },function(err, results){
-                    //uhh
+                trello.getBoardFieldbyName(params.targetboard, 'name', function(err, data){
+                    if(!err){
+                        Meta.push(data._value);  
+                    }
+                    else console.log(err);
                 });
                 async.filter(lists, function(list, topcallback){
                     var validation;
@@ -100,10 +95,7 @@ function Execute(query){
                                 async.filter(data, function(card, bottomcallback){
                                     var Card = new Object();
                                     var clr;
-                                    
-                                    //In json spec,  color code list name is always first. It's either that or create another property in the spec object.
                                     if(params.isColorCoded == "yes" && list.name.toLowerCase() == listnames[0]){
-                                        //store color codes in an array so we can check for valid application of the colors in the cards
                                         clr = null;
                                         if(card.labels.length > 0) clr = (card.labels[0].color) ? card.labels[0].color : 'none';
                                         if(validColors.indexOf(clr) == -1){
@@ -121,7 +113,7 @@ function Execute(query){
                                         Card.info = card.name;
                                     }
 
-                                    //var cvr = ValidateDataAgainst(validation, Card);
+                                    //var cvr = ValidateDataAgainst(validation, Card); TODO implement the validation for real
                                     var cvr = ValidateDataAgainst('', Card);
                                     if(!cvr)coll.push(Card);
                                     else validationResult.push(cvr);
@@ -139,8 +131,7 @@ function Execute(query){
                     }
                 }, 
                 function(err, fullResults){
-                    console.log('Card Result:'); 
-                        CleanColors(All, function(err, data, colorvalidation){
+                    CleanColors(All, function(err, data, colorvalidation){
                         //if(colorvalidation) validationResult += colorvalidation.toString();
                         console.log(validationResult);
                         ResolveListOrder(listnames, data, function(err, ordereddata){
@@ -181,7 +172,7 @@ function LoadValidationSchema(listname){
 };
 
 function ValidateDataAgainst(val_obj, entry){
-    var result = null; //null is clean
+    var result = null;
     if(val_obj.limittype){
         var length = (val_obj.limittype == "word") ? entry.name.split(" ").length : entry.name.length;
         if(val_obj.max){
@@ -209,14 +200,9 @@ function ValidateDataAgainst(val_obj, entry){
 
 //TODO: API gateway will want our response to have a content-type, and we have either a pdf or an error string. how do we deal with that?
 function SendValidationReport(report){
-    var response = {
-        statusCode: 200,
-        headers: {
-            "Content-Type" : "application/javascript"
-        },
-        body: JSON.stringify(report)
-    };
-    _context.succeed(response);
+    var responseBody = process.env.ERRPAGE;
+    console.log('Error occurred: ' + report);
+    _context.succeed({location: responseBody});
 }
 
 //Doublecheck use of colors on cards. The spec allows for color coding but only when used declaratively.
@@ -260,7 +246,6 @@ function CleanColors(lists, cb){
 function ResolveListOrder(listorder, lists, cb){
     var ol = [];
     if(listorder){
-        //loop over list names in order, potentially pushing a list from All to the ordered list
         async.eachSeries(listorder, function(listname, callback){
             var found = lodash.find(lists, x => x.name.toLowerCase() == listname);
             if(found && lists.indexOf(found) != -1){
