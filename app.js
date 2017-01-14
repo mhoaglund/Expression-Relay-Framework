@@ -24,6 +24,15 @@ var blueCorrection = '#0079BF';
 var redCorrection = '#EB5A46';
 var baseGray = '#545454';
 
+var fonts = {
+        Roboto: {
+            normal: 'fonts/NotoSans-Regular.ttf',
+            bold: 'fonts/NotoSans-Bold.ttf',
+            italics: 'fonts/NotoSans-Italic.ttf',
+            bolditalics: 'fonts/NotoSans-BoldItalic.ttf'
+        }
+    };
+
 var vnum = 'v0.1';
 var currdate = new Date().toJSON().slice(0,10).toString();
 
@@ -34,8 +43,8 @@ var defaultappend = '_1';
 
 var docname = "yourstatement"
 var specname = "en_erfspec.json";
-nconf.file('spec', specname);
-var _context = '';
+nconf.file('spec', specname); //TODO get this from S3, skip the nconf step and just grab a json obj
+var _context = ''; //this is stupid
 exports.handler = function(event, context){
     _context = context;
     console.log(event);
@@ -47,33 +56,14 @@ exports.handler = function(event, context){
 //http://localhost:8124/&targetboard=yeaRDUaD&isColorCoded=yes&lang=en&ccodestyle=outline&gutter=10&name=Maxwell%20Hoaglund
 
 function Execute(query){
-    var boarduri = '';
-    var params = query; //event object from aws
-    if(vurl.isUri(params.targetboard)){
-        boarduri = params.targetboard;
-    }
-    else{
-        var boarduri = 'https://trello.com/b/' + params.targetboard
-    }
-    boarduri += '.json';
-    var options = {
-        url: boarduri,
-        headers: {
-            'User-Agent': 'Mozilla/5.0'
-        }
-    }
-    console.log("BUCKET:" + process.env.S3BUCKET);
 
+    var params = query; //event object from aws
     var awsloc = process.env.S3BUCKET.toString();
     
     // if(params.lang){
-    //     specname = params.lang + "_" + "erfspec.json";
-    // }
-    // else{
-    //     specname = 'en_erfspec.json';
+    //     get the proper thing from s3...
     // }
 
-    // nconf.file('spec', awsloc + specname);
     listnames = nconf.get('spec:listnames');
 
     //TODO: track an error string through this to intelligently help users who didnt quite nail the spec
@@ -290,17 +280,7 @@ function ResolveListOrder(listorder, lists, cb){
 
 function MakePDF(meta, data, filename, params){
     //TODO pass in a font that was sent with the form
-    console.log('making pdf...');
-    var fonts = {
-        Roboto: {
-            normal: 'fonts/NotoSans-Regular.ttf',
-            bold: 'fonts/NotoSans-Bold.ttf',
-            italics: 'fonts/NotoSans-Italic.ttf',
-            bolditalics: 'fonts/NotoSans-BoldItalic.ttf'
-        }
-    };
-    var PdfPrinter = require('pdfmake/src/printer');
-    var printer = new PdfPrinter(fonts);
+
     var docdef = {content:[], styles:{ //TODO load these styles from aws
         _default:{
             fontSize: 8,
@@ -329,15 +309,12 @@ function MakePDF(meta, data, filename, params){
     meta.forEach(function(line){
         docdef.content.push({ text: line, style: '_default'});
     });
-    //TODO make this more sophisticated by loading display schema objects from a json doc for each list by name.
+
     async.filter(data, function(list,callback){
         var list_title = { text: list.name, style: '_subhead'}; //should users be able to color code a whole list?
         docdef.content.push(list_title);
         if(list.name.toLowerCase() == listnames[0]){
-            //use a table for the color code
             if(params.ccodestyle == "outline"){ 
-                //TODO here, we're forking into two possible paths just to generate structure of a json object differently.
-                //we should just generate and then rearrange depending on ccodestyle.
                 var columnhost = {style: 'vmargin',columns:[]};
                 list.cards.forEach(function(card){
                     var tableobj = {width: 'auto', table:{style: 'table', headerRows: 0, widths:[], body:[]}};
@@ -401,17 +378,19 @@ function MakePDF(meta, data, filename, params){
         callback(null, list);
     }, function(err, res){
         docdef.content.push({ text: 'Compiled with Expression Relay Framework ' + vnum + ' on ' + currdate, style: '_footer'});
-        var pdfDoc = printer.createPdfKitDocument(docdef);
-        pdfDoc.pipe(fs.createWriteStream('/tmp/makepdfexample.pdf'));
-        pdfDoc.end();
-        dropPDF(pdfDoc);
+        dropPDF(docdef);
     });
 }
 
-function dropPDF(doc){
-        //var params = {Bucket: 'erf-materials', Key: process.env.AWSKEY, Body: doc};
-        console.log('opening file...');
-        var _stream = fs.createReadStream('/tmp/makepdfexample.pdf');
+function dropPDF(_doc){
+        var localname = '/tmp/makepdfexample.pdf'
+        var PdfPrinter = require('pdfmake/src/printer');
+        var printer = new PdfPrinter(fonts);
+        var pdfDoc = printer.createPdfKitDocument(_doc);
+        pdfDoc.pipe(fs.createWriteStream(localname)); //TODO do we really need to reuse the stream object here?
+        pdfDoc.end();
+
+        var _stream = fs.createReadStream(localname);
         var params = {
             Bucket: 'erf-materials',
             Key: docname,
@@ -422,20 +401,13 @@ function dropPDF(doc){
         s3.upload(params, function(err){
             if(!err) {
                 var responseBody = process.env.S3BUCKET.toString() + docname;
-                console.log('Good to go!');
                 _context.succeed({location: responseBody});
             }
             else{
-                var responseBody = "Couldn't create entry. Something went wrong.";
-                var response = {
-                    statusCode: 200,
-                    headers: {
-                        "Content-Type" : "application/javascript"
-                    },
-                    body: responseBody
-                };
+                var responseBody = process.env.ERRPAGE;
                 console.log('Error occurred: ' + err);
-                _context.succeed(JSON.stringify(response));
+                _context.succeed({location: responseBody});
+                
             } 
         });
 };
