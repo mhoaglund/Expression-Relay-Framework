@@ -3,7 +3,7 @@ var isJSON = require('is-json');
 var vurl = require('valid-url');
 var Trello = require('trello');
 var pdfdoc = require('pdfkit');
-var pdfmake = require('pdfmake'); //better formatting support, but larger file size.
+var pdfmake = require('pdfmake');
 var nconf = require('nconf');
 var async = require('async');
 var http = require('http');
@@ -11,6 +11,7 @@ var fs = require('fs');
 var lodash = require('lodash');
 var querystring = require('querystring');
 var AWS = require('aws-sdk');
+var Q = require('q');
 var s3 = new AWS.S3();
 
 if(process.env.TRELLOKEY){
@@ -315,8 +316,8 @@ function MakePDF(meta, data, filename, params){
                     tableobj.layout = {
                         hLineColor: cardcolor,
                         vLineColor: cardcolor,
-                        hLineWidth: function(){return 1;}, //TODO update pdfmake so we can just pass a value in here like we can with color.
-                        vLineWidth: function(){return 1;}  //TODO fix pdfmake's offset math when using o.5 for both widths.
+                        hLineWidth: function(){return 1;},
+                        vLineWidth: function(){return 1;}
                     };
                     columnhost.columns.push(tableobj);
                 }); 
@@ -338,7 +339,7 @@ function MakePDF(meta, data, filename, params){
                 docdef.content.push(tableobj);
             }
         }
-        else if(list.name.toLowerCase() == listnames[1]){ //Tags
+        else if(list.name.toLowerCase() == listnames[1]){
             var alltags = { text: [], style: '_default'};
             list.cards.forEach(function(card){
                 var cardcolor = 'black';
