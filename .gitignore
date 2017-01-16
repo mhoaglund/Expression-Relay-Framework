@@ -18,6 +18,9 @@ result.pdf*
 settings.json*
 launch.json*
 
+#tests
+qtest.js
+
 # Runtime data
 pids
 *.pid

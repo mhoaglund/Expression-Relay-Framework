@@ -13,32 +13,42 @@ var AWS = require('aws-sdk');
 var async = require('async');
 var Q = require('q');
 var s3 = new AWS.S3();
-
+var All = [];
 //Refactor with promises to try to clear this up for future intervention
+var params = '';
+var payload = {};
 
 function grabLists(){
     var deferred = Q.defer();
     //get lists from trello and return
-    trello.getListsOnBoard(params.targetboard, function(error, lists){
+    trello.getListsOnBoard(payload.params.targetboard, function(error, lists){
         if(!error & typeof lists != 'string'){
-            var Meta = [];
-                if(params.name){
-                    nlname = decodeURI(params.name);
-                    docname = nlname.split(' ').slice(-1)[0];
-                    Meta.push(nlname);
-                }
-                
-                var All = [];
-                var validationResult = [];
-                deferred.resolve();
+            if(payload.params.name){
+                nlname = decodeURI(payload.params.name);
+                docname = nlname.split(' ').slice(-1)[0];
+                payload.meta.push(nlname);
+            }
+            deferred.resolve(lists);
         }
     });
     return deferred.promise();
 }
 
-grabLists()
+ http.createServer(function (req, res) {
+     res.writeHead(200, {'Content-Type': 'text/html'});
+     //console.log(req);
+     Execute(req);
+     res.end('ok');
+ }).listen(8124);
+
+function Execute(query){
+    payload.params = querystring.parse(query.url)
+    grabLists() //in theory the promise objects are managing args through this?
     .then(filterLists)
     .then(grabProperties)
+}
+
+//TODO entirely reimplement this so there aren't any nested asyncs with nutty callbacks and globals.
 function filterLists(lists){
     var deferred = Q.defer();
     async.filter(lists, function(list, topcallback){
@@ -80,6 +90,7 @@ function filterLists(lists){
                         ThisList.name = list.name;
                         All.push(ThisList);                                     
                         topcallback(null, coll);
+                        deferred.resolve(ThisList);
                     });
                 }
             });
@@ -243,7 +254,7 @@ function grabProperties(){
     var deferred = Q.defer();
     trello.getBoardFieldbyName(params.targetboard, 'name', function(err, data){
         if(!err){
-            Meta.push(data._value);
+            payload.meta.push(data._value);
             deferred.resolve();  
         }
         else deferred.reject();
@@ -251,13 +262,12 @@ function grabProperties(){
     return deferred.promise();
 }
 
-function CleanColors(lists, cb){
-    var validationstring = '';
+function CleanColors(lists){
+    var deferred = Q.defer();
     async.filter(lists, function(list, callback){
         list.cards.forEach(function(card){
             if(card.hasOwnProperty('color')){
                 if(card.color && validColors.indexOf(card.color) == -1){
-                    validationstring += ('Removed color: '+ card.color + ' from card "' + card.info + '" ');
                     card.color = 'none';
                 }
                 if(card.color == 'yellow'){
@@ -281,9 +291,10 @@ function CleanColors(lists, cb){
     },
     function(err, cardresults){   
         if(!err){
-            return cb(err, cardresults, validationstring); 
+            deferred.resolve(cardresults);
         }                       
     });
+    return deferred.promise();
 };
 
 function ResolveListOrder(listorder, lists, cb){
